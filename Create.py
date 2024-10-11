@@ -67,18 +67,18 @@ class Create(QWidget):
         
     def create_new_account(self):
         firstname = self.firstname_inp.text()
-        lastname = = self.lastname_inp.text()
+        lastname = self.lastname_inp.text()
         email = self.email_inp.text()
         phone = self.phone_inp.text()
         username = self.username_inp.text()
         password = self.password_inp.text()
         
-        db = Database(
-            host=,
-            user=,
-            password=,
-            database=,
-        )
+        # db = Database(
+        #     host=,
+        #     user=,
+        #     password=,
+        #     database=,
+        # )
         
         db.connect()
         db.insert(firstname, lastname, email, phone, username, password)

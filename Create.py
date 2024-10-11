@@ -1,11 +1,10 @@
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QWidget, QVBoxLayout, QFormLayout, QHBoxLayout
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QWidget, QVBoxLayout, QFormLayout, QHBoxLayout, QDesktopWidget
 from PyQt5.QtCore import Qt
+from Database import Database
 
 class Create(QWidget):
     def __init__(self):
         super().__init__()
-        
-        # main_layout = QVBoxLayout()
         
         form_layout = QFormLayout()
         
@@ -38,19 +37,51 @@ class Create(QWidget):
         create_btn = QPushButton('Create')
         create_btn.clicked.connect(self.create_new_account)
         
+        cancel_btn = QPushButton('Cancel')
+        cancel_btn.clicked.connect(self.close)
+        
         button_layout = QHBoxLayout()
         button_layout.addWidget(create_btn)
+        button_layout.addWidget(cancel_btn)
         button_layout.setAlignment(Qt.AlignCenter)
-        form_layout.addRow(button_layout)
+        
        
-        self.setStyleSheet("QWidget { border: 2px solid black; padding; 10px;")
-       
-        form_layout.setAlignment(Qt.AlignCenter)
-       
-        # main_layout.addLayout(form_layout)
-        # main_layout.addLayout(button_layout)
+        wrapper_layout = QVBoxLayout()
+        wrapper_layout.addLayout(form_layout)
+        wrapper_layout.addLayout(button_layout)
+        wrapper_layout.setAlignment(Qt.AlignCenter)
     
-        self.setLayout(form_layout)
+        self.setLayout(wrapper_layout)
+        
+        self.setWindowTitle('Create New Account')
+        
+        self.setWindowFlags(Qt.Window)
+        
+        self.center()
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
         
     def create_new_account(self):
-        print('connect me')
+        firstname = self.firstname_inp.text()
+        lastname = = self.lastname_inp.text()
+        email = self.email_inp.text()
+        phone = self.phone_inp.text()
+        username = self.username_inp.text()
+        password = self.password_inp.text()
+        
+        db = Database(
+            host=,
+            user=,
+            password=,
+            database=,
+        )
+        
+        db.connect()
+        db.insert(firstname, lastname, email, phone, username, password)
+        db.close()
+        
+        self.close()

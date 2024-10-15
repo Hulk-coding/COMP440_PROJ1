@@ -81,6 +81,8 @@ class Create(QWidget):
 
         self.center()
 
+        self.tools = Tools()  # Create an instance of Tools
+
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
@@ -110,5 +112,21 @@ class Create(QWidget):
         # db.connect()
         # db.insert(firstname, lastname, email, phone, username, password)
         # db.close()
-
+        self.clear_all_fields()
         self.close()
+
+    def clear_all_fields(self):
+        # Clear the form fields after submission
+        self.tools.clear_form_fields(
+            self.firstname_inp,
+            self.lastname_inp,
+            self.email_inp,
+            self.phone_inp,
+            self.username_inp,
+            self.password_inp,
+        )
+
+    def closeEvent(self, event):
+        # When the widget is about to be closed, clear the form fields before closing
+        self.clear_all_fields()
+        event.accept()

@@ -6,17 +6,9 @@ from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QFormLayout,
-    QHBoxLayout,
-)
-from PyQt5.QtWidgets import (
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QWidget,
-    QVBoxLayout,
-    QFormLayout,
     QDesktopWidget,
     QHBoxLayout,
+    QMessageBox,
 )
 from PyQt5.QtCore import Qt
 from Create import Create
@@ -41,10 +33,6 @@ class Login(QWidget):
         self.userPasswordIn = QLineEdit()
         self.userPasswordIn.setEchoMode(QLineEdit.Password)
 
-        # buttons for login page - greg edited
-        self.loginButton = QPushButton("Login", self)
-        self.createAccountButton = QPushButton("Create Account", self)
-
         self.userName.setFixedWidth(80)
         self.userPassword.setFixedWidth(80)
         self.userNameIn.setFixedWidth(200)
@@ -56,16 +44,17 @@ class Login(QWidget):
         self.loginButton = QPushButton(" Login ", self)
         self.createAccountButton = QPushButton(" Create Account ", self)
 
-        # adding style elements
-        self.loginButton.setObjectName("QButton")
-        self.createAccountButton.setObjectName("QButton")
+        # Connect login button to login function
+        self.loginButton.clicked.connect(self.login)
         # greg added function
         self.createAccountButton.clicked.connect(self.open_create_window)
 
+        # adding style elements
+        self.loginButton.setObjectName("QButton")
+        self.createAccountButton.setObjectName("QButton")
+
         # formatting page, creating layouts for the components
         pageLayout = QFormLayout()
-        pageLayout.addRow(userName, userNameIn)
-        pageLayout.addRow(userPassword, userPasswordIn)
 
         # layout for username input
         inputLayout = QHBoxLayout()
@@ -80,8 +69,6 @@ class Login(QWidget):
         inputLayout2.addWidget(self.userPasswordIn)
         inputLayout2.setSpacing(10)
         inputLayout2.setAlignment(Qt.AlignCenter)
-
-        buttonsLayout = QHBoxLayout()
 
         # greg edit - add self
         buttonsLayout = QHBoxLayout()
@@ -103,9 +90,7 @@ class Login(QWidget):
         mainLayout.addLayout(pageLayout)
         mainLayout.setAlignment(Qt.AlignCenter)
         self.setLayout(mainLayout)
-        pageLayout.setAlignment(Qt.AlignCenter)
 
-        self.setLayout(pageLayout)
         # self.setWindowTitle("Login")
         self.setWindowFlags(Qt.Window)
 
@@ -122,3 +107,29 @@ class Login(QWidget):
                 self.setStyleSheet(f.read())
         except Exception as e:
             print(f"Error loading stylesheet: {e}")
+
+    def login(self):
+        username = self.userNameIn.text()
+        password = self.userPasswordIn.text()
+
+        # Here we would typically fetch the stored hashed password from database
+        # Here I have put a dummy hashed password
+        # It should be replaced with a database query
+        stored_hashed_password = (
+            b"$2b$12$9vXLlX6X6X6X6X6X6X6X6uX6X6X6X6X6X6X6X6X6X6X6X6X6X6X6X6"
+        )
+
+        if self.check_password(password, stored_hashed_password):
+            QMessageBox.information(
+                self, "Login Successful", "You have successfully logged in!"
+            )
+        else:
+            QMessageBox.warning(self, "Login Failed", "Invalid username or password.")
+
+    @staticmethod
+    def check_password(password, hashed_password):
+        return bcrypt.checkpw(password.encode("utf-8"), hashed_password)
+
+    @staticmethod
+    def hash_password(password):
+        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())

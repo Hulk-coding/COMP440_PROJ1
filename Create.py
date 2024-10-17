@@ -1,3 +1,4 @@
+import bcrypt
 from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
@@ -7,6 +8,7 @@ from PyQt5.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QDesktopWidget,
+    QMessageBox,
 )
 from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtGui import QRegExpValidator
@@ -102,6 +104,11 @@ class Create(QWidget):
             print("All fields must be filled")
             return
 
+        # Hash the password
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
+        # Here we can store the user information in our database
+
         # db = Database(
         #     host=,
         #     user=,
@@ -112,6 +119,11 @@ class Create(QWidget):
         # db.connect()
         # db.insert(firstname, lastname, email, phone, username, password)
         # db.close()
+
+        QMessageBox.information(
+            self, "Account Created", "Your account has been created successfully!"
+        )
+        # Clear the form fields after submission
         self.clear_all_fields()
         self.close()
 

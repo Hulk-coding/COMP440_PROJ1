@@ -26,9 +26,10 @@ class Database:
             
     def insert(self, firstname, lastname, email, phone, username, password):
         """Insert New Account"""
+        """BY adding %s to parameterized queries to protect from injection attacks"""
         if self.connection:
             try:
-                q_insert = """INSERT INTO accounts (first_name, last_name, email, phone, username, password) VALUES (%,%,%,%,%,%)"""
+                q_insert = """INSERT INTO accounts (first_name, last_name, email, phone, username, password) VALUES (%s,%s,%s,%s,%s,%s)"""
         
                 self.cursor.execute(q_insert, (firstname, lastname, email, phone, username, password))
                 self.connection.commit()

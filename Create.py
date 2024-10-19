@@ -1,4 +1,4 @@
-import bcrypt
+import bcrypt, re
 from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 from PyQt5.QtCore import Qt, QRegExp
-from PyQt5.QtGui import QRegExpValidator
+from PyQt5.QtGui import QRegExpValidator, QColor
 from Database import Database
 from Tools import Tools
 
@@ -52,6 +52,7 @@ class Create(QWidget):
         self.password_inp.setEchoMode(QLineEdit.Password)
         # password_regex = QRegExp(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$")
         # self.password_inp.setValidator(QRegExpValidator(password_regex))
+        self.password_inp.textChanged.connect(self.check_password_strength)
 
         form_layout.addRow("First name:", self.firstname_inp)
         form_layout.addRow("Last name:", self.lastname_inp)
@@ -92,6 +93,53 @@ class Create(QWidget):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+    def check_password_strength(self):
+        password = self.password_inp.text()
+        strength = 0
+        suggestions = []
+
+        if len(password) >= 8:
+            strength += 1
+        else:
+            suggestions.append("Use at least 8 characters")
+        if re.search(r"[A-Z]", password):
+            strength += 1
+        else:
+            suggestions.append("Include at least one uppercase letter")
+
+        if re.search(r"[a-z]", password):
+            strength += 1
+        else:
+            suggestions.append("Include at least one lowercase letter")
+
+        if re.search(r"\d", password):
+            strength += 1
+        else:
+            suggestions.append("Include at least one number")
+
+        if re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+            strength += 1
+        else:
+            suggestions.append("Include at least one special character")
+
+        # Set color based on password strength
+        if strength < 2:
+            color = QColor(255, 0, 0)  # Red
+        elif strength < 4:
+            color = QColor(255, 165, 0)  # Orange
+        else:
+            color = QColor(0, 255, 0)  # Green
+
+        self.password_inp.setStyleSheet(
+            f"QLineEdit {{ background-color: {color.name()}; }}"
+        )
+
+        if suggestions:
+            tooltip = "Password should:\n" + "\n".join(suggestions)
+            self.password_inp.setToolTip(tooltip)
+        else:
+            self.password_inp.setToolTip("Strong password")
+
     def create_new_account(self):
         firstname = self.firstname_inp.text()
         lastname = self.lastname_inp.text()
@@ -99,6 +147,21 @@ class Create(QWidget):
         phone = self.phone_inp.text()
         username = self.username_inp.text()
         password = self.password_inp.text()
+
+        # Check password strength before proceeding
+        if (
+            len(password) < 8
+            or not re.search(r"[A-Z]", password)
+            or not re.search(r"[a-z]", password)
+            or not re.search(r"\d", password)
+            or not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password)
+        ):
+            QMessageBox.warning(
+                self,
+                "Weak Password",
+                "Please choose a stronger password. It should be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.",
+            )
+            return
 
         # Validate all fields before proceeding
         if not all([firstname, lastname, email, phone, username, password]):
@@ -108,25 +171,24 @@ class Create(QWidget):
         # Hash the password
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
-        # Here we can store the user information in our database
-
+        # Store the user information in the database
         db = Database(
-            host='localhost',
-            user='admin_user',
-            password='CS440Database',
-            database='CS440_DB_DESIGN',
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
         )
 
         db.connect()
         db.insert(firstname, lastname, email, phone, username, hashed_password)
         db.close()
 
-        # this message should NOT appear here!! I already have it in database. 
-        QMessageBox.information(
-            self, "Account Created", "Your account has been created successfully!"
-        )
+        # this message should NOT appear here!! I already have it in database.
+        # Removed the unncessary message box function.
+
         # Clear the form fields after submission
         self.clear_all_fields()
+        # Close the window after the account creation
         self.close()
 
     def clear_all_fields(self):

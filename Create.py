@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtGui import QRegExpValidator
 from Database import Database
+from Tools import Tools
 
 
 class Create(QWidget):
@@ -49,8 +50,8 @@ class Create(QWidget):
         # Password (at least 8 characters, including uppercase, lowercase, and numbers)
         self.password_inp = QLineEdit()
         self.password_inp.setEchoMode(QLineEdit.Password)
-        password_regex = QRegExp(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$")
-        self.password_inp.setValidator(QRegExpValidator(password_regex))
+        # password_regex = QRegExp(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$")
+        # self.password_inp.setValidator(QRegExpValidator(password_regex))
 
         form_layout.addRow("First name:", self.firstname_inp)
         form_layout.addRow("Last name:", self.lastname_inp)
@@ -101,7 +102,7 @@ class Create(QWidget):
 
         # Validate all fields before proceeding
         if not all([firstname, lastname, email, phone, username, password]):
-            print("All fields must be filled")
+            QMessageBox.warning(self, "Input Error", "All fields must be filled")
             return
 
         # Hash the password
@@ -109,17 +110,18 @@ class Create(QWidget):
 
         # Here we can store the user information in our database
 
-        # db = Database(
-        #     host=,
-        #     user=,
-        #     password=,
-        #     database=,
-        # )
+        db = Database(
+            host='localhost',
+            user='admin_user',
+            password='CS440Database',
+            database='CS440_DB_DESIGN',
+        )
 
-        # db.connect()
-        # db.insert(firstname, lastname, email, phone, username, password)
-        # db.close()
+        db.connect()
+        db.insert(firstname, lastname, email, phone, username, hashed_password)
+        db.close()
 
+        # this message should NOT appear here!! I already have it in database. 
         QMessageBox.information(
             self, "Account Created", "Your account has been created successfully!"
         )

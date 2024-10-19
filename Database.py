@@ -29,13 +29,20 @@ class Database:
         """BY adding %s to parameterized queries to protect from injection attacks"""
         if self.connection:
             try:
-                q_insert = """INSERT INTO accounts (first_name, last_name, email, phone, username, password) VALUES (%s,%s,%s,%s,%s,%s)"""
+                q_insert = """INSERT INTO user (firstName, lastName, email, phone, username, password) VALUES (%s,%s,%s,%s,%s,%s)"""
         
                 self.cursor.execute(q_insert, (firstname, lastname, email, phone, username, password))
                 self.connection.commit()
                 print("Account Created Successfully.")
             except mysql.connector.Error as err:
                 print(f"Insert Failed: {err}")
+                
+    #add a function to retrieve user password for verification
+    
+    #add a function to remove a user from database
+    
+    #
+    
                 
     def close(self):
         """Closing Database..."""

@@ -13,11 +13,12 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from Create import Create
 from Database import Database
+from Tools import Tools
 
 class Login(QWidget):
     def __init__(self):
         super().__init__()
-
+        
          # loading stylesheet
         self.loadStylesheet("StyleSheet.qss")
 
@@ -149,11 +150,12 @@ class Login(QWidget):
             QMessageBox.information(
                 self, "Login Successful", "You have successfully logged in!"
             )
+            self.clear_all_fields(username, password)
         else:
             QMessageBox.warning(self, "Invalid username or password.")
             QMessageBox.warning(self, "Invalid username or password.")
             
-    #finish this once function added to Database.py        
+        
     
     def get_password(self, username, password):
         db = Database(
@@ -183,3 +185,8 @@ class Login(QWidget):
     @staticmethod
     def hash_password(password):
         return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
+
+    def clear_all_fields(self, username, password):
+    # Clear the form fields after submission
+        Tools.clear_form_fields(self.userNameIn, self.userPasswordIn)

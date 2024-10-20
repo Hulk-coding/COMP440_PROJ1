@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from Create import Create
-
+from Database import Database
 
 class Login(QWidget):
     def __init__(self):
@@ -155,12 +155,26 @@ class Login(QWidget):
             b"$2b$12$9vXLlX6X6X6X6X6X6X6X6uX6X6X6X6X6X6X6X6X6X6X6X6X6X6X6X6"
         )
 
-        if self.check_password(password, stored_hashed_password):
+        if self.check_password(username, stored_hashed_password):
             QMessageBox.information(
                 self, "Login Successful", "You have successfully logged in!"
             )
         else:
             QMessageBox.warning(self, "Login Failed", "Invalid username or password.")
+            
+    #finish this once function added to Database.py        
+    
+    # def get_password(self, username):
+    #     db = Database(
+    #         host='localhost',
+    #         user='admin_user',
+    #         password='CS440Database',
+    #         database='CS440_DB_DESIGN',
+    #     )
+    #     db.connect()
+    #     #hash_pass = # write a function in Database.py that retrieves password here 
+    #     db.close()
+    #     return 
 
     @staticmethod
     def check_password(password, hashed_password):

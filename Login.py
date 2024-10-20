@@ -18,16 +18,25 @@ class Login(QWidget):
     def __init__(self):
         super().__init__()
 
+         # loading stylesheet
+        self.loadStylesheet("StyleSheet.qss")
+
         # labels for input
         userName = QLabel("Username")
         userPassword = QLabel("Password")
 
-        # loading stylesheet
-        self.loadStylesheet("StyleSheet.qss")
 
         # labels for input
+        self.welcomePage = QLabel("Welcome!")
+        self.welcomePage.setObjectName("welcomeLabel")
+
         self.userName = QLabel("Username:")
         self.userPassword = QLabel("Password:")
+        self.userName.setObjectName("labels")
+        self.userPassword.setObjectName("labels")
+        
+        self.welcomeSign = QLineEdit()
+        self.welcomePage.setFixedWidth(200)
 
         self.userNameIn = QLineEdit()
         self.userPasswordIn = QLineEdit()
@@ -36,9 +45,9 @@ class Login(QWidget):
         self.userName.setFixedWidth(80)
         self.userPassword.setFixedWidth(80)
         self.userNameIn.setFixedWidth(200)
-        self.userNameIn.setObjectName("QLineEdit")
+        self.userNameIn.setObjectName("userNameIn")
         self.userPasswordIn.setFixedWidth(200)
-        self.userPasswordIn.setObjectName("QLineEdit")
+        self.userPasswordIn.setObjectName("userPasswordIn")
 
         # buttons for login page - greg edited
         self.loginButton = QPushButton(" Login ", self)
@@ -50,11 +59,17 @@ class Login(QWidget):
         self.createAccountButton.clicked.connect(self.open_create_window)
 
         # adding style elements
-        self.loginButton.setObjectName("QButton")
-        self.createAccountButton.setObjectName("QButton")
+        self.loginButton.setObjectName("loginButton")
+        self.createAccountButton.setObjectName("createAccountButton")
+        
 
         # formatting page, creating layouts for the components
         pageLayout = QFormLayout()
+
+        #layout for welcome sign
+        welcomeLayout = QFormLayout()
+        welcomeLayout.addWidget(self.welcomePage)
+        welcomeLayout.setAlignment(Qt.AlignCenter)
 
         # layout for username input
         inputLayout = QHBoxLayout()
@@ -70,6 +85,11 @@ class Login(QWidget):
         inputLayout2.setSpacing(10)
         inputLayout2.setAlignment(Qt.AlignCenter)
 
+
+
+        # Apply border to the inputContainer widget (can be styled in QSS)
+        # inputContainer.setStyleSheet("QWidget { border: 2px solid black; padding: 10px; }")
+
         # greg edit - add self
         buttonsLayout = QHBoxLayout()
         buttonsLayout.addWidget(self.loginButton)
@@ -78,16 +98,32 @@ class Login(QWidget):
         buttonsLayout.setSpacing(80)
         buttonsLayout.setAlignment(Qt.AlignCenter)
 
-        pageLayout.addRow(inputLayout)
-        pageLayout.addRow(inputLayout2)
-        pageLayout.addRow(buttonsLayout)
-        pageLayout.setVerticalSpacing(50)
+        # Create a QWidget to contain both input layouts
+        inputContainer = QWidget()
+        containerLayout = QVBoxLayout()
+        containerLayout.addLayout(inputLayout)
+        containerLayout.addLayout(inputLayout2)
+        containerLayout.addLayout(buttonsLayout)
+        inputContainer.setFixedSize(500,300)
+        inputContainer.setLayout(containerLayout)
+        inputContainer.setObjectName("inputContainer")
+
+        #pageLayout.addRow(welcomeLayout)
+        
+        #pageLayout.addRow(inputLayout)
+        #pageLayout.addRow(inputLayout2)
+        
+        #pageLayout.addRow(inputContainer)
+        #pageLayout.addRow(buttonsLayout)
+        #pageLayout.setVerticalSpacing(50)
 
         # self.setStyleSheet("QWidget { border: 2px solid black; padding; 10px;") # this is not doing anything visible
 
         # pageLayout.setAlignment(Qt.AlignCenter)
         mainLayout = QVBoxLayout()
-        mainLayout.addLayout(pageLayout)
+        mainLayout.addLayout(welcomeLayout)
+        mainLayout.addWidget(inputContainer,  alignment=Qt.AlignCenter)
+        #mainLayout.addLayout(pageLayout,  alignment=Qt.AlignCenter)
         mainLayout.setAlignment(Qt.AlignCenter)
         self.setLayout(mainLayout)
 

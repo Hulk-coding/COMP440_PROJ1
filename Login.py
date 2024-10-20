@@ -117,9 +117,8 @@ class Login(QWidget):
         #pageLayout.addRow(buttonsLayout)
         #pageLayout.setVerticalSpacing(50)
 
-        # self.setStyleSheet("QWidget { border: 2px solid black; padding; 10px;") # this is not doing anything visible
 
-        # pageLayout.setAlignment(Qt.AlignCenter)
+ 
         mainLayout = QVBoxLayout()
         mainLayout.addLayout(welcomeLayout)
         mainLayout.addWidget(inputContainer,  alignment=Qt.AlignCenter)
@@ -127,10 +126,7 @@ class Login(QWidget):
         mainLayout.setAlignment(Qt.AlignCenter)
         self.setLayout(mainLayout)
 
-        # self.setWindowTitle("Login")
         self.setWindowFlags(Qt.Window)
-
-        # self.center()
 
     # greg added create function
     def open_create_window(self):
@@ -147,38 +143,42 @@ class Login(QWidget):
     def login(self):
         username = self.userNameIn.text()
         password = self.userPasswordIn.text()
-
-        # Here we would typically fetch the stored hashed password from database
-        # Here I have put a dummy hashed password
-        # It should be replaced with a database query
-        stored_hashed_password = (
-            b"$2b$12$9vXLlX6X6X6X6X6X6X6X6uX6X6X6X6X6X6X6X6X6X6X6X6X6X6X6X6"
-        )
-
-        if self.check_password(username, stored_hashed_password):
+        hash_pass = self.hash_password(password)
+        
+        if self.get_password(username, password):
             QMessageBox.information(
                 self, "Login Successful", "You have successfully logged in!"
             )
         else:
-            QMessageBox.warning(self, "Login Failed", "Invalid username or password.")
+            QMessageBox.warning(self, "Invalid username or password.")
+            QMessageBox.warning(self, "Invalid username or password.")
             
     #finish this once function added to Database.py        
     
-    # def get_password(self, username):
-    #     db = Database(
-    #         host='localhost',
-    #         user='admin_user',
-    #         password='CS440Database',
-    #         database='CS440_DB_DESIGN',
-    #     )
-    #     db.connect()
-    #     #hash_pass = # write a function in Database.py that retrieves password here 
-    #     db.close()
-    #     return 
+    def get_password(self, username, password):
+        db = Database(
+            host='localhost',
+            user='admin_user',
+            password='CS440Database',
+            database='CS440_DB_DESIGN',
+        )
+        db.connect()
+        is_password = db.check_password(username, password)
+        db.close()
+        return is_password
 
-    @staticmethod
-    def check_password(password, hashed_password):
-        return bcrypt.checkpw(password.encode("utf-8"), hashed_password)
+    def get_password(self, username, password):
+        db = Database(
+            host='localhost',
+            user='admin_user',
+            password='CS440Database',
+            database='CS440_DB_DESIGN',
+        )
+        db.connect()
+        is_password = db.check_password(username, password)
+        db.close()
+        return is_password
+
 
     @staticmethod
     def hash_password(password):

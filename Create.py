@@ -171,22 +171,18 @@ class Create(QWidget):
         # Hash the password
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
-        # Store the user information in the database
+        # Here we can store the user information in our database
         db = Database(
             host="localhost",
             user="admin_user",
             password="CS440Database",
             database="CS440_DB_DESIGN",
         )
-
         db.connect()
-        db.insert(firstname, lastname, email, phone, username, hashed_password)
+        if db.insert(firstname, lastname, email, phone, username, hashed_password):
+            QMessageBox.information(self, "SUCCESS", "Account Created Successfully.")
         db.close()
-
-        # this message should NOT appear here!! I already have it in database.
-        # Removed the unncessary message box function.
-
-        # Clear the form fields after submission
+     
         self.clear_all_fields()
         # Close the window after the account creation
         self.close()

@@ -1,4 +1,6 @@
 import mysql.connector
+import bcrypt
+from PyQt5.QtWidgets import QMessageBox
 
 
 class Database:
@@ -36,33 +38,27 @@ class Database:
                     q_insert, (firstname, lastname, email, phone, username, password)
                 )
                 self.connection.commit()
-                print("Account Created Successfully.")
+                return True
+                
             except mysql.connector.Error as err:
                 print(f"Insert Failed: {err}")
-
-    # add a function to retrieve user password for verification
-    def get_user_password(self, username):
-        if self.connection:
-            try:
-                query = "SELECT password FROM user WHERE username = %s"
-                self.cursor.execute(query, (username,))
-                result = self.cursor.fetchone()
-                if result:
-                    return result[0]  # Return the password
-                else:
-                    print(f"No user found with username: {username}")
-                    return None
-            except mysql.connector.Error as err:
-                print(f"Error retrieving password: {err}")
-                return None
-        else:
-            print("Not connected to the database")
-            return None
-
-    # add a function to remove a user from database
-
-    #
-
+                return False
+                
+    #add a function to retrieve user password for verification
+    def check_password(self, username, password):
+      
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT password FROM user WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        
+        if result:
+            stored_hash=result[0]
+            return bcrypt.checkpw(password.encode("utf-8"), stored_hash)
+        return False
+    
+    
+    #add a function to remove a user from database
+                
     def close(self):
         """Closing Database..."""
         if self.connection:

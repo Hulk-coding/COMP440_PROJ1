@@ -17,11 +17,12 @@ from Tools import Tools
 
 
 class Create(QWidget):
-    def __init__(self):
+    def __init__(self, parent_position=None):
         super().__init__()
 
         form_layout = QFormLayout()
-
+        
+        
         # First name (allow only letters and spaces)
         self.firstname_inp = QLineEdit()
         firstname_regex = QRegExp(r"^[a-zA-Z\s]+$")
@@ -81,17 +82,16 @@ class Create(QWidget):
 
         self.setWindowTitle("Create New Account")
 
-        self.setWindowFlags(Qt.Window)
-
-        self.center()
 
         self.tools = Tools()  # Create an instance of Tools
 
-    def center(self):
+    def center(self, parent_position = None):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
+        cp = parent_position
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+       
 
     def check_password_strength(self):
         password = self.password_inp.text()

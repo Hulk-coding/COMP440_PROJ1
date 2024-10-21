@@ -131,7 +131,10 @@ class Login(QWidget):
 
     # greg added create function
     def open_create_window(self):
-        self.create_window = Create()
+        self.create_window = Create(self.frameGeometry().center())
+        self.create_window.setFixedSize(400, 300)
+
+        
         self.create_window.show()
 
     def loadStylesheet(self, filename):
@@ -152,11 +155,8 @@ class Login(QWidget):
             )
             self.clear_all_fields(username, password)
         else:
-            QMessageBox.warning(self, "Invalid username or password.")
-            QMessageBox.warning(self, "Invalid username or password.")
+            QMessageBox.warning(self, "Login Error", "Invalid username or password.")
             
-        
-    
     def get_password(self, username, password):
         db = Database(
             host='localhost',

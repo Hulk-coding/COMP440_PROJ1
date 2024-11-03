@@ -14,6 +14,7 @@ from PyQt5.QtCore import Qt
 from Create import Create
 from Database import Database
 
+
 class Login(QWidget):
     def __init__(self):
         super().__init__()
@@ -125,20 +126,20 @@ class Login(QWidget):
             )
         else:
             QMessageBox.warning(self, "Login Failed", "Invalid username or password.")
-            
-    #finish this once function added to Database.py        
-    
-    # def get_password(self, username):
-    #     db = Database(
-    #         host='localhost',
-    #         user='admin_user',
-    #         password='CS440Database',
-    #         database='CS440_DB_DESIGN',
-    #     )
-    #     db.connect()
-    #     #hash_pass = # write a function in Database.py that retrieves password here 
-    #     db.close()
-    #     return 
+
+    # finish this once function added to Database.py
+
+    def get_password(self, username):
+        db = Database(
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
+        )
+        db.connect()
+        db.get_user_password()  # hash_pass = # write a function in Database.py that retrieves password here
+        db.close()
+        return
 
     @staticmethod
     def check_password(password, hashed_password):

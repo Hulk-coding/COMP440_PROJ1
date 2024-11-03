@@ -44,7 +44,49 @@ class Database:
                 print(f"Insert Failed: {err}")
                 return False
             
+    def obtain_listings(self, city, description, feature, price):
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                   # SELECT u.unitID, u.title, u.description, u.price, u.username, u.create_at, f.featureName
+                # FROM units u
+                # JOIN features f ON u.unitID = f.unitID
+                # WHERE (u.title = %s OR %s IS NULL) 
+                # AND (u.description LIKE CONCAT('%%', %s, '%%') OR %s IS NULL)
+                # AND (f.featureName = %s OR %s IS NULL)
+                # AND (u.price <= %s OR %s IS NULL);
+                query = """
+        
+                
+                SELECT u.unitID, u.title, u.description, u.price, u.username, u.create_at
+                FROM units u
+                WHERE (u.title = %s OR %s IS NULL)
+                AND (u.description LIKE CONCAT('%%', %s, '%%') OR %s IS NULL)
+                AND (u.price <= %s OR %s IS NULL);
+
+                """
+                cursor.execute(query, (city, city, description, description, price, price))
             
+                # Check if results were returned
+                if cursor.description is None:
+                    print("Query did not return any columns. Please verify the query.")
+                    return None
+                
+                # Execute the query with parameters
+                columns = [col[0] for col in cursor.description]  # Get column names
+                listings = [dict(zip(columns, row)) for row in cursor.fetchall()]
+                print('listing returned', listings)
+                return listings
+            
+            except Error as e:
+                print(f"Error: {e}")
+                return None  # Handle error as needed
+                
+            finally:
+                if self.connection:
+                    cursor.close()
+                    self.connection.close()
+ 
             
     # insert new listing 
     def insert_new_unit (self, title, description, price, username, features):

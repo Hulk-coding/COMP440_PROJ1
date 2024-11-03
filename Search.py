@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QDesktopWidget,
     QMessageBox,
+    QScrollArea
 )
 from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtGui import QRegExpValidator, QColor
@@ -46,20 +47,29 @@ class Search(QWidget):
         scroll.setWidgetResizable(True)
 
         # Obtain listings' data from DB
-        listings = self.obtainListings()
+        listings = self.obtain_listings()
+        # if listings:
+        #     for listing in listings:
+        #         listingLabel = QLabel(f"Title: {listing['title']}, Description: {listing['description']}, "
+        #                             f"Feature: {listing['featureName']}, Price: {listing['price']}")
+        #         resultsLayout.addWidget(listingLabel)
+        # else:
+        #     resultsLayout.addWidget(QLabel("Sorry! No available units found with the description provided."))
+        
         if listings:
             for listing in listings:
-                listingLabel = QLabel(f"City: {listing['city']}, Description: {listing['description']}, "
-                                       f"Feature: {listing['feature']}, Price: {listing['price']}")
+                listingLabel = QLabel(f"Title: {listing['title']}, Description: {listing['description']}, "
+                                    f"Price: {listing['price']}")
                 resultsLayout.addWidget(listingLabel)
         else:
-            resultsLayout.addWidget(QLabel("Sorry!, No available units found with the description provided! "))
+            resultsLayout.addWidget(QLabel("Sorry! No available units found with the description provided."))
+
 
         #set mainLayout and add the scroll area
         mainLayout.addWidget(scroll)
         self.setLayout(mainLayout)
 
-    def obtainListings(self):
+    def obtain_listings(self):
         # Connect to the database and retrieve listings based on criteria
         db = Database(
             host='localhost',
@@ -68,6 +78,6 @@ class Search(QWidget):
             database='CS440_DB_DESIGN',
         )
         db.connect()
-        listings = db.obtainListings(self.city, self.description, self.feature, self.price)
+        listings = db.obtain_listings(self.cityS, self.descriptionS, self.featureS, self.priceS)
         db.close()
         return listings

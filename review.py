@@ -1,18 +1,21 @@
+import sys
+import mysql.connector
 from PyQt5.QtWidgets import (
-    QMainWindow,
+    QApplication,
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
     QComboBox,
     QTextEdit,
     QPushButton,
     QMessageBox,
-    QLabel,
 )
 from PyQt5.QtCore import Qt
 from Database import Database
 
 
-class ReviewPage(QMainWindow):
+class ReviewWindow(QWidget):
     def __init__(self, username, unit_id):
         super().__init__()
         self.username = username
@@ -45,52 +48,34 @@ class ReviewPage(QMainWindow):
         layout.addWidget(submit_button)
 
     def submit_review(self):
-        db = Database(
-            host="104.172.8.91",
-            user="admin_user",
-            password="CS440Database",
-            database="COMP440_Fall2024_DB",
-        )
-        db.connect()
+        rating = int(self.rating_combo.currentText())
+        review_text = self.review_text.toPlainText()
 
         try:
-            if not db.can_submit_review(self.username):
-                QMessageBox.warning(
-                    self,
-                    "Review Limit Reached",
-                    "You can only submit 3 reviews per day.",
-                )
-                return
-
-            if db.is_self_review(self.username, self.unit_id):
-                QMessageBox.warning(
-                    self, "Self Review", "You cannot review your own rental unit."
-                )
-                return
-
-            if db.has_reviewed_unit(self.username, self.unit_id):
-                QMessageBox.warning(
-                    self,
-                    "Duplicate Review",
-                    "You have already reviewed this rental unit.",
-                )
-                return
-
-            rating = int(
-                self.rating_combo.currentText()[0]
-            )  # Extract the number from the rating text
-            review = self.review_text.toPlainText()
-
-            db.save_review(self.username, self.unit_id, review, rating)
-
-            QMessageBox.information(
-                self, "Review Submitted", "Your review has been submitted successfully."
+            conn = mysql.connector.connect(
+                host="104.172.8.91",
+                user="admin_user",
+                password="CS440Database",
+                database="COMP440_Fall2024_DB",
             )
-            self.clear_form()
+            cursor = conn.cursor()
+
+            # Call the procedure
+            cursor.callproc(
+                "AddReview",
+                (self.rental_unit_id, self.current_user_id, review_text, rating),
+            )
+
+            # Commit the transaction
+            conn.commit()
+
+            QMessageBox.information(self, "Success", "Review submitted successfully.")
+            self.close()
+
+        except mysql.connector.Error as err:
+            QMessageBox.warning(self, "Error", f"Failed to submit review: {err}")
 
         finally:
-            db.close()
-
-    def clear_form(self):
-        self.rating_combo.setCurrentIndex(0)
-        self.review_text.clear()
+            if conn.is_connected():
+                cursor.close()
+                conn.close()

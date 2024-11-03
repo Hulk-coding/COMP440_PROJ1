@@ -16,17 +16,17 @@ from Database import Database
 from Tools import Tools
 from Rentals import Rentals
 
+
 class Login(QWidget):
     def __init__(self):
         super().__init__()
-        
-         # loading stylesheet
+
+        # loading stylesheet
         self.loadStylesheet("StyleSheet.qss")
 
         # labels for input
         userName = QLabel("Username")
         userPassword = QLabel("Password")
-
 
         # labels for input
         self.welcomePage = QLabel("Welcome!")
@@ -36,7 +36,7 @@ class Login(QWidget):
         self.userPassword = QLabel("Password:")
         self.userName.setObjectName("labels")
         self.userPassword.setObjectName("labels")
-        
+
         self.welcomeSign = QLineEdit()
         self.welcomePage.setFixedWidth(200)
 
@@ -55,25 +55,24 @@ class Login(QWidget):
         self.loginButton = QPushButton(" Login ", self)
         self.createAccountButton = QPushButton(" Create Account ", self)
 
-        #test button
-        #self.testButton = QPushButton(" test ", self)
+        # test button
+        # self.testButton = QPushButton(" test ", self)
 
         # Connect login button to login function
         self.loginButton.clicked.connect(self.login)
         # greg added function
         self.createAccountButton.clicked.connect(self.open_create_window)
 
-        #self.testButton.clicked.connect(self.showRentalsWindow)
+        # self.testButton.clicked.connect(self.showRentalsWindow)
 
         # adding style elements
         self.loginButton.setObjectName("loginButton")
         self.createAccountButton.setObjectName("createAccountButton")
-        
 
         # formatting page, creating layouts for the components
         pageLayout = QFormLayout()
 
-        #layout for welcome sign
+        # layout for welcome sign
         welcomeLayout = QFormLayout()
         welcomeLayout.addWidget(self.welcomePage)
         welcomeLayout.setAlignment(Qt.AlignCenter)
@@ -92,7 +91,8 @@ class Login(QWidget):
         inputLayout2.setSpacing(10)
         inputLayout2.setAlignment(Qt.AlignCenter)
 
-
+        # Apply border to the inputContainer widget (can be styled in QSS)
+        # inputContainer.setStyleSheet("QWidget { border: 2px solid black; padding: 10px; }")
 
         # Apply border to the inputContainer widget (can be styled in QSS)
         # inputContainer.setStyleSheet("QWidget { border: 2px solid black; padding: 10px; }")
@@ -101,7 +101,7 @@ class Login(QWidget):
         buttonsLayout = QHBoxLayout()
         buttonsLayout.addWidget(self.loginButton)
         buttonsLayout.addWidget(self.createAccountButton)
-        #buttonsLayout.addWidget(self.testButton)
+        # buttonsLayout.addWidget(self.testButton)
         buttonsLayout.setContentsMargins(0, 0, 0, 0)
         buttonsLayout.setSpacing(80)
         buttonsLayout.setAlignment(Qt.AlignCenter)
@@ -112,14 +112,13 @@ class Login(QWidget):
         containerLayout.addLayout(inputLayout)
         containerLayout.addLayout(inputLayout2)
         containerLayout.addLayout(buttonsLayout)
-        inputContainer.setFixedSize(500,300)
+        inputContainer.setFixedSize(500, 300)
         inputContainer.setLayout(containerLayout)
         inputContainer.setObjectName("inputContainer")
 
- 
         mainLayout = QVBoxLayout()
         mainLayout.addLayout(welcomeLayout)
-        mainLayout.addWidget(inputContainer,  alignment=Qt.AlignCenter)
+        mainLayout.addWidget(inputContainer, alignment=Qt.AlignCenter)
         mainLayout.setAlignment(Qt.AlignCenter)
         self.setLayout(mainLayout)
 
@@ -130,7 +129,6 @@ class Login(QWidget):
         self.create_window = Create(self.frameGeometry().center())
         self.create_window.setFixedSize(400, 300)
 
-        
         self.create_window.show()
 
     def loadStylesheet(self, filename):
@@ -144,7 +142,7 @@ class Login(QWidget):
         username = self.userNameIn.text()
         password = self.userPasswordIn.text()
         hash_pass = self.hash_password(password)
-        
+
         if self.get_password(username, password):
             QMessageBox.information(
                 self, "Login Successful", "You have successfully logged in!"
@@ -155,18 +153,18 @@ class Login(QWidget):
         else:
             QMessageBox.warning(self, "Login Error", "Invalid username or password.")
 
-    #function created to show the rentals window        
+    # function created to show the rentals window
     def showRentalsWindow(self, username, password):
-        self.rentalsWindow = Rentals()  
+        self.rentalsWindow = Rentals()
         self.rentalsWindow.showMaximized()
-        self.close() 
+        self.close()
 
     def get_password(self, username, password):
         db = Database(
-            host='localhost',
-            user='admin_user',
-            password='CS440Database',
-            database='CS440_DB_DESIGN',
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
         )
         db.connect()
         is_password = db.check_password(username, password)
@@ -175,22 +173,24 @@ class Login(QWidget):
 
     def get_password(self, username, password):
         db = Database(
-            host='localhost',
-            user='admin_user',
-            password='CS440Database',
-            database='CS440_DB_DESIGN',
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
         )
         db.connect()
         is_password = db.check_password(username, password)
         db.close()
         return is_password
-
 
     @staticmethod
     def hash_password(password):
         return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
+    def clear_all_fields(self, username, password):
+        # Clear the form fields after submission
+        Tools.clear_form_fields(self.userNameIn, self.userPasswordIn)
 
     def clear_all_fields(self, username, password):
-    # Clear the form fields after submission
+        # Clear the form fields after submission
         Tools.clear_form_fields(self.userNameIn, self.userPasswordIn)

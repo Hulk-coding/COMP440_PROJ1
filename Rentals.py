@@ -164,7 +164,6 @@ class Rentals(QWidget):
         
         self.search_window.show()
 
-
     #successfully created lisitng
     def createListing(self):
         city = self.cityIn.text()
@@ -174,16 +173,36 @@ class Rentals(QWidget):
         
         countListingToday = self.get_count_listing(self.username, self.password)
 
+        #condition to createlisting successfully
         if self.get_password(username, password) and (countListingToday < 2):
             QMessageBox.information(
                 self, "Listing Created Successfully", "You have successfully created a listing!"
             )
             self.clear_all_fields(username, password)
             self.showRentalsWindow()
-            
-        else:
-            QMessageBox.warning(self, "Listing Error", "Invalid data or exceded listing per day")
 
+        # Validate all fields before proceeding
+        if not all([city, description, feature, price]):
+            QMessageBox.warning(self, "Input Error", "All fields must be filled")
+            return
+
+
+        # Here we can store the user information in our database
+        db = Database(
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
+        )
+        db.connect()
+        if db.insert(city, description, feature, price):
+            QMessageBox.information(self, "SUCCESS", "Account Created Successfully.")
+        db.close()
+     
+        self.clear_all_fields()
+        # Close the window after the account creation
+        self.close()
+        
     #funciton that obtains the number of listings created on the same day
     def get_count_listing(self, username, password):
         db = Database(
@@ -196,6 +215,7 @@ class Rentals(QWidget):
         listingCount = db.get_user_listing_count(username, password)
         db.close()
         return listingCount        
+
 
     def loadStylesheet(self, filename):
         try:

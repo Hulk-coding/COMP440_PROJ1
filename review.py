@@ -47,35 +47,18 @@ class ReviewWindow(QWidget):
         submit_button.clicked.connect(self.submit_review)
         layout.addWidget(submit_button)
 
-    def submit_review(self):
-        rating = int(self.rating_combo.currentText())
+    def capture_and_submit_review(self):
+        # Capture the input values from the UI
         review_text = self.review_text.toPlainText()
-
-        try:
-            conn = mysql.connector.connect(
-                host="104.172.8.91",
-                user="admin_user",
-                password="CS440Database",
-                database="COMP440_Fall2024_DB",
-            )
-            cursor = conn.cursor()
-
-            # Call the procedure
-            cursor.callproc(
-                "AddReview",
-                (self.rental_unit_id, self.current_user_id, review_text, rating),
-            )
-
-            # Commit the transaction
-            conn.commit()
-
-            QMessageBox.information(self, "Success", "Review submitted successfully.")
-            self.close()
-
-        except mysql.connector.Error as err:
-            QMessageBox.warning(self, "Error", f"Failed to submit review: {err}")
-
-        finally:
-            if conn.is_connected():
-                cursor.close()
-                conn.close()
+        rating = self.rating_combo.currentText()
+        
+        db = Database(
+                    host="localhost",
+                    user="admin_user",
+                    password="CS440Database",
+                    database="CS440_DB_DESIGN",
+                )
+        db.connect()
+        # Call the method to submit the review
+        db.submit_review(self.unit_id, self.username, review_text, rating):
+        db.close()    

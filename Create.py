@@ -179,7 +179,7 @@ class Create(QWidget):
             database="CS440_DB_DESIGN",
         )
         db.connect()
-        if db.insert(firstname, lastname, email, phone, username, hashed_password):
+        if db.insert_new_user(firstname, lastname, email, phone, username, hashed_password):
             QMessageBox.information(self, "SUCCESS", "Account Created Successfully.")
         db.close()
      

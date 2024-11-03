@@ -148,14 +148,14 @@ class Login(QWidget):
                 self, "Login Successful", "You have successfully logged in!"
             )
             self.clear_all_fields(username, password)
-            self.showRentalsWindow()
+            self.showRentalsWindow(username)
 
         else:
             QMessageBox.warning(self, "Login Error", "Invalid username or password.")
 
     # function created to show the rentals window
-    def showRentalsWindow(self, username, password):
-        self.rentalsWindow = Rentals()
+    def showRentalsWindow(self, username):
+        self.rentalsWindow = Rentals(username)
         self.rentalsWindow.showMaximized()
         self.close()
 
@@ -191,6 +191,3 @@ class Login(QWidget):
         # Clear the form fields after submission
         Tools.clear_form_fields(self.userNameIn, self.userPasswordIn)
 
-    def clear_all_fields(self, username, password):
-        # Clear the form fields after submission
-        Tools.clear_form_fields(self.userNameIn, self.userPasswordIn)

@@ -1,7 +1,7 @@
 import mysql.connector
 import bcrypt
 from PyQt5.QtWidgets import QMessageBox
-
+from mysql.connector import Error
 
 class Database:
     def __init__(self, host, user, password, database):
@@ -27,7 +27,7 @@ class Database:
             print(f"Error: {err}")
             self.connection = None
 
-    def insert(self, firstname, lastname, email, phone, username, password):
+    def insert_new_user(self, firstname, lastname, email, phone, username, password):
         """Insert New Account"""
         """BY adding %s to parameterized queries to protect from injection attacks"""
         if self.connection:
@@ -43,6 +43,28 @@ class Database:
             except mysql.connector.Error as err:
                 print(f"Insert Failed: {err}")
                 return False
+            
+            
+            
+    # insert new listing 
+    def insert_new_unit (self, title, description, price, username, features):
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                cursor.callproc('AddRental', (title, description, price, username, features))
+                self.connection.commit()
+                
+                print('Unit added to DB success')
+            
+            except Error as e:
+                print(f"Error: {e}")
+                
+            finally:
+                if self.connection:
+                    cursor.close()
+                    self.connection.close()
+                
+            
                 
     #add a function to retrieve user password for verification
     def check_password(self, username, password):

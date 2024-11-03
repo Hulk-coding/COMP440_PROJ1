@@ -14,6 +14,7 @@ from PyQt5.QtCore import Qt
 from Create import Create
 from Database import Database
 from Tools import Tools
+from Rentals import Rentals
 
 class Login(QWidget):
     def __init__(self):
@@ -54,10 +55,15 @@ class Login(QWidget):
         self.loginButton = QPushButton(" Login ", self)
         self.createAccountButton = QPushButton(" Create Account ", self)
 
+        #test button
+        #self.testButton = QPushButton(" test ", self)
+
         # Connect login button to login function
         self.loginButton.clicked.connect(self.login)
         # greg added function
         self.createAccountButton.clicked.connect(self.open_create_window)
+
+        #self.testButton.clicked.connect(self.showRentalsWindow)
 
         # adding style elements
         self.loginButton.setObjectName("loginButton")
@@ -95,6 +101,7 @@ class Login(QWidget):
         buttonsLayout = QHBoxLayout()
         buttonsLayout.addWidget(self.loginButton)
         buttonsLayout.addWidget(self.createAccountButton)
+        #buttonsLayout.addWidget(self.testButton)
         buttonsLayout.setContentsMargins(0, 0, 0, 0)
         buttonsLayout.setSpacing(80)
         buttonsLayout.setAlignment(Qt.AlignCenter)
@@ -109,21 +116,10 @@ class Login(QWidget):
         inputContainer.setLayout(containerLayout)
         inputContainer.setObjectName("inputContainer")
 
-        #pageLayout.addRow(welcomeLayout)
-        
-        #pageLayout.addRow(inputLayout)
-        #pageLayout.addRow(inputLayout2)
-        
-        #pageLayout.addRow(inputContainer)
-        #pageLayout.addRow(buttonsLayout)
-        #pageLayout.setVerticalSpacing(50)
-
-
  
         mainLayout = QVBoxLayout()
         mainLayout.addLayout(welcomeLayout)
         mainLayout.addWidget(inputContainer,  alignment=Qt.AlignCenter)
-        #mainLayout.addLayout(pageLayout,  alignment=Qt.AlignCenter)
         mainLayout.setAlignment(Qt.AlignCenter)
         self.setLayout(mainLayout)
 
@@ -154,9 +150,17 @@ class Login(QWidget):
                 self, "Login Successful", "You have successfully logged in!"
             )
             self.clear_all_fields(username, password)
+            #self.showRentalsWindow()
+
         else:
             QMessageBox.warning(self, "Login Error", "Invalid username or password.")
-            
+
+    #function created to show the rentals window        
+    def showRentalsWindow(self, username, password):
+        self.rentalsWindow = Rentals()  
+        self.rentalsWindow.showMaximized()
+        self.close() 
+
     def get_password(self, username, password):
         db = Database(
             host='localhost',

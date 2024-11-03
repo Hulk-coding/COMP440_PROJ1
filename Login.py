@@ -150,7 +150,7 @@ class Login(QWidget):
                 self, "Login Successful", "You have successfully logged in!"
             )
             self.clear_all_fields(username, password)
-            #self.showRentalsWindow()
+            self.showRentalsWindow()
 
         else:
             QMessageBox.warning(self, "Login Error", "Invalid username or password.")

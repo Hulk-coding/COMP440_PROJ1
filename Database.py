@@ -63,6 +63,35 @@ class Database:
                 if self.connection:
                     cursor.close()
                     self.connection.close()
+                    
+                    
+    def submit_review(self, unit_id, username, review_text, rating):
+        if self.connection:
+            cursor = self.connection.cursor()
+
+        try:
+        
+
+            # Call the procedure
+            cursor.callproc(
+                "AddReview",
+                (unit_id, username, review_text, rating),
+            )
+
+            # Commit the transaction
+            self.connection.commit()
+
+            QMessageBox.information(self, "Success", "Review submitted successfully.")
+            self.close()
+
+        except mysql.connector.Error as err:
+            QMessageBox.warning(self, "Error", f"Failed to submit review: {err}")
+
+        finally:
+            if self.connection:
+                cursor.close()
+                self.connection.close()
+
                 
             
                 

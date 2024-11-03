@@ -15,27 +15,11 @@ from PyQt5.QtGui import QRegExpValidator, QColor
 from Database import Database
 from Tools import Tools
 
-import bcrypt
-from PyQt5.QtWidgets import (
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QWidget,
-    QVBoxLayout,
-    QFormLayout,
-    QDesktopWidget,
-    QHBoxLayout,
-    QMessageBox,
-)
-from PyQt5.QtCore import Qt
-from Create import Create
-from Database import Database
-from Tools import Tools
 
 class Rentals(QWidget):
     def __init__(self, username, password, parent_position=None):
         super().__init__()
-        
+         
         #to get access to the users info and verify listing count
         self.username = username
         self.password = password
@@ -83,7 +67,7 @@ class Rentals(QWidget):
         # Connect create button to create function
         self.createListingButton.clicked.connect(self.createListing)
         # greg added function
-        self.searchListingButton.clicked.connect(self.open_search_window)
+        self.searchListingButton.clicked.connect(self.showSearchWindow)
 
         # adding style elements
         self.createListingButton.setObjectName("loginButton")
@@ -202,7 +186,7 @@ class Rentals(QWidget):
         self.clear_all_fields()
         # Close the window after the account creation
         self.close()
-        
+
     #funciton that obtains the number of listings created on the same day
     def get_count_listing(self, username, password):
         db = Database(
@@ -216,6 +200,16 @@ class Rentals(QWidget):
         db.close()
         return listingCount        
 
+    #function created to show the rentals window        
+    def showSearchWindow(self):
+        city = self.cityIn.text()
+        description = self.descriptionIn.text()
+        feature = self.featureIn.text()
+        price = self.priceIn.text()
+
+        self.searchWindow = Search(city, description, feature, price)  
+        self.searchWindow.showMaximized()
+        self.close()
 
     def loadStylesheet(self, filename):
         try:

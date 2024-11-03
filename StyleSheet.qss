@@ -1,15 +1,36 @@
+#inputContainer { 
+    border: 2px solid black; 
+    border-radius: 10px;
+    }
 
-#QLineEdit {
+#userName, #userPassword {
         border: 2px solid black;
         border-radius: 2px;
         padding: 0px;
         
     }
-#QLineEdit:focus {
-    border: 2px solid blue;
+#userNameIn, #userPasswordIn {
+    border: 3px solid black;
+    border-radius:3px;
 }
 
-#QButton{
+#loginButton, #createAccountButton{
     border: 2px solid black;
     border-radius: 4px;
+}
+
+#mainLayout{
+    border: 2px solid black;
+}
+
+#welcomeLabel {
+    font-size: 40pt;  
+    font-weight: bold;  
+    color: black;  
+    margin-bottom: 100px;  
+}
+
+#labels{
+    font-size: 16pt;
+    color: black;
 }

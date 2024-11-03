@@ -13,22 +13,32 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from Create import Create
 from Database import Database
+from Tools import Tools
+from Rentals import Rentals
 
 
 class Login(QWidget):
     def __init__(self):
         super().__init__()
 
-        # labels for input
-        userName = QLabel("Username")
-        userPassword = QLabel("Password")
-
         # loading stylesheet
         self.loadStylesheet("StyleSheet.qss")
 
         # labels for input
+        userName = QLabel("Username")
+        userPassword = QLabel("Password")
+
+        # labels for input
+        self.welcomePage = QLabel("Welcome!")
+        self.welcomePage.setObjectName("welcomeLabel")
+
         self.userName = QLabel("Username:")
         self.userPassword = QLabel("Password:")
+        self.userName.setObjectName("labels")
+        self.userPassword.setObjectName("labels")
+
+        self.welcomeSign = QLineEdit()
+        self.welcomePage.setFixedWidth(200)
 
         self.userNameIn = QLineEdit()
         self.userPasswordIn = QLineEdit()
@@ -37,25 +47,35 @@ class Login(QWidget):
         self.userName.setFixedWidth(80)
         self.userPassword.setFixedWidth(80)
         self.userNameIn.setFixedWidth(200)
-        self.userNameIn.setObjectName("QLineEdit")
+        self.userNameIn.setObjectName("userNameIn")
         self.userPasswordIn.setFixedWidth(200)
-        self.userPasswordIn.setObjectName("QLineEdit")
+        self.userPasswordIn.setObjectName("userPasswordIn")
 
         # buttons for login page - greg edited
         self.loginButton = QPushButton(" Login ", self)
         self.createAccountButton = QPushButton(" Create Account ", self)
+
+        # test button
+        # self.testButton = QPushButton(" test ", self)
 
         # Connect login button to login function
         self.loginButton.clicked.connect(self.login)
         # greg added function
         self.createAccountButton.clicked.connect(self.open_create_window)
 
+        # self.testButton.clicked.connect(self.showRentalsWindow)
+
         # adding style elements
-        self.loginButton.setObjectName("QButton")
-        self.createAccountButton.setObjectName("QButton")
+        self.loginButton.setObjectName("loginButton")
+        self.createAccountButton.setObjectName("createAccountButton")
 
         # formatting page, creating layouts for the components
         pageLayout = QFormLayout()
+
+        # layout for welcome sign
+        welcomeLayout = QFormLayout()
+        welcomeLayout.addWidget(self.welcomePage)
+        welcomeLayout.setAlignment(Qt.AlignCenter)
 
         # layout for username input
         inputLayout = QHBoxLayout()
@@ -71,35 +91,44 @@ class Login(QWidget):
         inputLayout2.setSpacing(10)
         inputLayout2.setAlignment(Qt.AlignCenter)
 
+        # Apply border to the inputContainer widget (can be styled in QSS)
+        # inputContainer.setStyleSheet("QWidget { border: 2px solid black; padding: 10px; }")
+
+        # Apply border to the inputContainer widget (can be styled in QSS)
+        # inputContainer.setStyleSheet("QWidget { border: 2px solid black; padding: 10px; }")
+
         # greg edit - add self
         buttonsLayout = QHBoxLayout()
         buttonsLayout.addWidget(self.loginButton)
         buttonsLayout.addWidget(self.createAccountButton)
+        # buttonsLayout.addWidget(self.testButton)
         buttonsLayout.setContentsMargins(0, 0, 0, 0)
         buttonsLayout.setSpacing(80)
         buttonsLayout.setAlignment(Qt.AlignCenter)
 
-        pageLayout.addRow(inputLayout)
-        pageLayout.addRow(inputLayout2)
-        pageLayout.addRow(buttonsLayout)
-        pageLayout.setVerticalSpacing(50)
+        # Create a QWidget to contain both input layouts
+        inputContainer = QWidget()
+        containerLayout = QVBoxLayout()
+        containerLayout.addLayout(inputLayout)
+        containerLayout.addLayout(inputLayout2)
+        containerLayout.addLayout(buttonsLayout)
+        inputContainer.setFixedSize(500, 300)
+        inputContainer.setLayout(containerLayout)
+        inputContainer.setObjectName("inputContainer")
 
-        # self.setStyleSheet("QWidget { border: 2px solid black; padding; 10px;") # this is not doing anything visible
-
-        # pageLayout.setAlignment(Qt.AlignCenter)
         mainLayout = QVBoxLayout()
-        mainLayout.addLayout(pageLayout)
+        mainLayout.addLayout(welcomeLayout)
+        mainLayout.addWidget(inputContainer, alignment=Qt.AlignCenter)
         mainLayout.setAlignment(Qt.AlignCenter)
         self.setLayout(mainLayout)
 
-        # self.setWindowTitle("Login")
         self.setWindowFlags(Qt.Window)
-
-        # self.center()
 
     # greg added create function
     def open_create_window(self):
-        self.create_window = Create()
+        self.create_window = Create(self.frameGeometry().center())
+        self.create_window.setFixedSize(400, 300)
+
         self.create_window.show()
 
     def loadStylesheet(self, filename):
@@ -112,24 +141,25 @@ class Login(QWidget):
     def login(self):
         username = self.userNameIn.text()
         password = self.userPasswordIn.text()
+        hash_pass = self.hash_password(password)
 
-        # Here we would typically fetch the stored hashed password from database
-        # Here I have put a dummy hashed password
-        # It should be replaced with a database query
-        stored_hashed_password = (
-            b"$2b$12$9vXLlX6X6X6X6X6X6X6X6uX6X6X6X6X6X6X6X6X6X6X6X6X6X6X6X6"
-        )
-
-        if self.check_password(username, stored_hashed_password):
+        if self.get_password(username, password):
             QMessageBox.information(
                 self, "Login Successful", "You have successfully logged in!"
             )
+            self.clear_all_fields(username, password)
+            self.showRentalsWindow()
+
         else:
-            QMessageBox.warning(self, "Login Failed", "Invalid username or password.")
+            QMessageBox.warning(self, "Login Error", "Invalid username or password.")
 
-    # finish this once function added to Database.py
+    # function created to show the rentals window
+    def showRentalsWindow(self, username, password):
+        self.rentalsWindow = Rentals()
+        self.rentalsWindow.showMaximized()
+        self.close()
 
-    def get_password(self, username):
+    def get_password(self, username, password):
         db = Database(
             host="localhost",
             user="admin_user",
@@ -137,14 +167,30 @@ class Login(QWidget):
             database="CS440_DB_DESIGN",
         )
         db.connect()
-        db.get_user_password()  # hash_pass = # write a function in Database.py that retrieves password here
+        is_password = db.check_password(username, password)
         db.close()
-        return
+        return is_password
 
-    @staticmethod
-    def check_password(password, hashed_password):
-        return bcrypt.checkpw(password.encode("utf-8"), hashed_password)
+    def get_password(self, username, password):
+        db = Database(
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
+        )
+        db.connect()
+        is_password = db.check_password(username, password)
+        db.close()
+        return is_password
 
     @staticmethod
     def hash_password(password):
         return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
+    def clear_all_fields(self, username, password):
+        # Clear the form fields after submission
+        Tools.clear_form_fields(self.userNameIn, self.userPasswordIn)
+
+    def clear_all_fields(self, username, password):
+        # Clear the form fields after submission
+        Tools.clear_form_fields(self.userNameIn, self.userPasswordIn)

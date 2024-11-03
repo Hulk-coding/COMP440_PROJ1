@@ -1,5 +1,5 @@
 
-import bcrypt
+# import bcrypt
 from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
@@ -7,12 +7,10 @@ from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QFormLayout,
-    QDesktopWidget,
     QHBoxLayout,
     QMessageBox,
 )
 from PyQt5.QtCore import Qt
-from Create import Create
 from Database import Database
 from Tools import Tools
 from Search import Search
@@ -155,12 +153,6 @@ class Rentals(QWidget):
         description = self.descriptionIn.text()
         feature = self.featureIn.text()
         price = self.priceIn.text()
-    
-
-        # # Validate all fields before proceeding
-        # if not all([city, description, feature, price]):
-        #     QMessageBox.warning(self, "Input Error", "All fields must be filled")
-        #     return
 
 
         # Here we can store the user information in our database

@@ -15,14 +15,10 @@ class MainWindow(QMainWindow):
         width, height = self.getWindowSize()
         self.setGeometry(100,100, width, height)
 
-        # self.create_btn = QPushButton("create", self)
-        # self.create_btn.clicked.connect(self.open_create_window)
-        
-        
-        # self.setCentralWidget(self.create_btn)
+      
         
         self.login_form = Login()
-        # self.create_window.show()
+       
         
         self.setCentralWidget(self.login_form)
     

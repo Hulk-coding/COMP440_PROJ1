@@ -48,39 +48,49 @@ class Database:
         if self.connection:
             cursor = self.connection.cursor()
             try:
-                   # SELECT u.unitID, u.title, u.description, u.price, u.username, u.create_at, f.featureName
-                # FROM units u
-                # JOIN features f ON u.unitID = f.unitID
-                # WHERE (u.title = %s OR %s IS NULL) 
-                # AND (u.description LIKE CONCAT('%%', %s, '%%') OR %s IS NULL)
-                # AND (f.featureName = %s OR %s IS NULL)
-                # AND (u.price <= %s OR %s IS NULL);
+                
                 query = """
-        
-                
-                SELECT u.unitID, u.title, u.description, u.price, u.username, u.create_at
+                SELECT u.unitID, u.title, u.description, u.price, u.username, u.create_at, f.featureName
                 FROM units u
-                WHERE (u.title = %s OR %s IS NULL)
-                AND (u.description LIKE CONCAT('%%', %s, '%%') OR %s IS NULL)
-                AND (u.price <= %s OR %s IS NULL);
-
-                """
-                cursor.execute(query, (city, city, description, description, price, price))
-            
-                # Check if results were returned
-                if cursor.description is None:
-                    print("Query did not return any columns. Please verify the query.")
-                    return None
+                JOIN features f ON u.unitID = f.unitID
+                WHERE u.unitID IN (
+                    SELECT unitID FROM features WHERE featureName = %s
+                );
                 
-                # Execute the query with parameters
-                columns = [col[0] for col in cursor.description]  # Get column names
-                listings = [dict(zip(columns, row)) for row in cursor.fetchall()]
+               
+                
+                """""
+                cursor.execute(query, (feature,))
+                
+                 
+                columns = [col[0] for col in cursor.description]  
+                listings = cursor.fetchall()
                 print('listing returned', listings)
-                return listings
+
             
+                unit_dict = {}
+                for row in listings:
+                    listing = dict(zip(columns, row))
+                    unit_id = listing['unitID']
+                    if unit_id not in unit_dict:
+                       
+                        unit_dict[unit_id] = {
+                            'title': listing['title'],
+                            'description': listing['description'],
+                            'price': listing['price'],
+                            'username': listing['username'],
+                            'create_at': listing['create_at'],
+                            'features': []  
+                        }
+                   
+                    unit_dict[unit_id]['features'].append(listing['featureName'])
+
+                return unit_dict
+                        
+                       
             except Error as e:
                 print(f"Error: {e}")
-                return None  # Handle error as needed
+                return None 
                 
             finally:
                 if self.connection:

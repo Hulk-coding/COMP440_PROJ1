@@ -1,15 +1,15 @@
 import sys
-import mysql.connector
+# import mysql.connector
 from PyQt5.QtWidgets import (
-    QApplication,
+    # QApplication,
     QWidget,
     QVBoxLayout,
-    QHBoxLayout,
+    # QHBoxLayout,
     QLabel,
     QComboBox,
     QTextEdit,
     QPushButton,
-    QMessageBox,
+    # QMessageBox,
 )
 from PyQt5.QtCore import Qt
 from Database import Database

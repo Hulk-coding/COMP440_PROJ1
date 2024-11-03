@@ -1,18 +1,11 @@
 import bcrypt, re
 from PyQt5.QtWidgets import (
     QLabel,
-    QLineEdit,
-    QPushButton,
     QWidget,
     QVBoxLayout,
-    QFormLayout,
-    QHBoxLayout,
-    QDesktopWidget,
-    QMessageBox,
     QScrollArea
 )
-from PyQt5.QtCore import Qt, QRegExp
-from PyQt5.QtGui import QRegExpValidator, QColor
+from PyQt5.QtCore import Qt
 from Database import Database
 from Tools import Tools
 
@@ -48,18 +41,11 @@ class Search(QWidget):
 
         # Obtain listings' data from DB
         listings = self.obtain_listings()
-        # if listings:
-        #     for listing in listings:
-        #         listingLabel = QLabel(f"Title: {listing['title']}, Description: {listing['description']}, "
-        #                             f"Feature: {listing['featureName']}, Price: {listing['price']}")
-        #         resultsLayout.addWidget(listingLabel)
-        # else:
-        #     resultsLayout.addWidget(QLabel("Sorry! No available units found with the description provided."))
-        
         if listings:
-            for listing in listings:
-                listingLabel = QLabel(f"Title: {listing['title']}, Description: {listing['description']}, "
-                                    f"Price: {listing['price']}")
+            for unit_id, unit in listings.items(): 
+                features_str = ', '.join(unit['features'])  
+                listingLabel = QLabel(f"Title: {unit['title']}, Description: {unit['description']}, "
+                                    f"Features: {features_str}, Price: {unit['price']}")
                 resultsLayout.addWidget(listingLabel)
         else:
             resultsLayout.addWidget(QLabel("Sorry! No available units found with the description provided."))

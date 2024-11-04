@@ -11,11 +11,15 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QMessageBox,
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from Database import Database
 
 
 class ReviewWindow(QWidget):
+    reviewCompleted = (
+        pyqtSignal()
+    )  # Signal to indicate review completion or window closure
+
     def __init__(self, username, unit_id):
         super().__init__()
         self.username = username
@@ -26,9 +30,7 @@ class ReviewWindow(QWidget):
         self.setWindowTitle("Rental Review")
         self.setGeometry(100, 100, 400, 300)
 
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
+        layout = QVBoxLayout()
 
         # Dropdown for rating
         self.rating_combo = QComboBox()
@@ -47,8 +49,12 @@ class ReviewWindow(QWidget):
         submit_button.clicked.connect(self.submit_review)
         layout.addWidget(submit_button)
 
+        self.setLayout(layout)
+
     def submit_review(self):
-        rating = int(self.rating_combo.currentText())
+        rating_text = self.rating_combo.currentText()
+        rating_map = {"Excellent": 3, "Good": 2, "Fair": 1, "Poor": 1}
+        rating = rating_map[rating_text]
         review_text = self.review_text.toPlainText()
 
         try:
@@ -63,13 +69,14 @@ class ReviewWindow(QWidget):
             # Call the procedure
             cursor.callproc(
                 "AddReview",
-                (self.rental_unit_id, self.current_user_id, review_text, rating),
+                (self.unit_id, self.username, review_text, rating),
             )
 
             # Commit the transaction
             conn.commit()
 
             QMessageBox.information(self, "Success", "Review submitted successfully.")
+            self.reviewCompleted.emit()  # Emit the signal
             self.close()
 
         except mysql.connector.Error as err:
@@ -79,3 +86,7 @@ class ReviewWindow(QWidget):
             if conn.is_connected():
                 cursor.close()
                 conn.close()
+
+    def closeEvent(self, event):
+        self.reviewCompleted.emit()  # Emit the signal when window is closed
+        super().closeEvent(event)

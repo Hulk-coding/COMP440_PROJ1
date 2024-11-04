@@ -22,7 +22,7 @@ class Login(QWidget):
         super().__init__()
 
         # loading stylesheet
-        self.loadStylesheet("StyleSheet.qss")
+        # self.loadStylesheet("StyleSheet.qss")
 
         # labels for input
         userName = QLabel("Username")
@@ -161,10 +161,10 @@ class Login(QWidget):
 
     def get_password(self, username, password):
         db = Database(
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="CS440_DB_DESIGN",
+            host="127.0.0.1",
+            user="root",
+            password="=lrD(nC2b?87",
+            database="COMP440_Fall2024_DB",
         )
         db.connect()
         is_password = db.check_password(username, password)
@@ -173,10 +173,10 @@ class Login(QWidget):
 
     def get_password(self, username, password):
         db = Database(
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="CS440_DB_DESIGN",
+            host="127.0.0.1",
+            user="root",
+            password="=lrD(nC2b?87",
+            database="COMP440_Fall2024_DB",
         )
         db.connect()
         is_password = db.check_password(username, password)
@@ -190,4 +190,3 @@ class Login(QWidget):
     def clear_all_fields(self, username, password):
         # Clear the form fields after submission
         Tools.clear_form_fields(self.userNameIn, self.userPasswordIn)
-

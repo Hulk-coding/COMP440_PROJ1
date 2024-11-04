@@ -81,10 +81,10 @@ class Search(QWidget):
     def obtain_listings(self):
         # Connect to the database and retrieve listings based on criteria
         db = Database(
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="CS440_DB_DESIGN",
+            host="127.0.0.1",
+            user="root",
+            password="=lrD(nC2b?87",
+            database="COMP440_Fall2024_DB",
         )
         db.connect()
         listings = db.obtain_listings(

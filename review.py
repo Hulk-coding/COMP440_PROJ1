@@ -56,10 +56,10 @@ class ReviewWindow(QWidget):
         rating = self.rating_combo.currentText()
 
         db = Database(
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="CS440_DB_DESIGN",
+            host="127.0.0.1",
+            user="root",
+            password="=lrD(nC2b?87",
+            database="COMP440_Fall2024_DB",
         )
         db.connect()
         # Call the method to submit the review

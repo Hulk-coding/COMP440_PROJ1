@@ -1,4 +1,5 @@
 import sys
+
 # import mysql.connector
 from PyQt5.QtWidgets import (
     # QApplication,
@@ -46,21 +47,27 @@ class ReviewWindow(QWidget):
 
         # Submit button
         submit_button = QPushButton("Submit Review")
-        submit_button.clicked.connect(self.submit_review)
+        submit_button.clicked.connect(self.capture_and_submit_review)
         layout.addWidget(submit_button)
 
     def capture_and_submit_review(self):
         # Capture the input values from the UI
         review_text = self.review_text.toPlainText()
         rating = self.rating_combo.currentText()
-        
+
         db = Database(
-                    host="localhost",
-                    user="admin_user",
-                    password="CS440Database",
-                    database="CS440_DB_DESIGN",
-                )
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
+        )
         db.connect()
         # Call the method to submit the review
-        db.submit_review(self.unit_id, self.username, review_text, rating):
-        db.close()    
+        db.submit_review(self.unit_id, self.username, review_text, rating)
+        db.close()
+        self.reviewCompleted.emit()
+        self.close()
+
+    def closeEvent(self, event):
+        self.reviewCompleted.emit()
+        super().closeEvent(event)

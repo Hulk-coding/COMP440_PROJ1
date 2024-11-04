@@ -165,9 +165,9 @@ class Rentals(QWidget):
             QMessageBox.warning(self, "ERROR", "Failed to create listing.")
         db.close()
 
-        self.clear_all_fields(city, description, feature, price)
-        # Close the window after the account creation
-        self.close()
+        # self.clear_all_fields(city, description, feature, price)
+        # # Close the window after the account creation
+        # self.close()
 
     # function created to show the rentals window
     def showSearchWindow(self):

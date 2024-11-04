@@ -3,14 +3,16 @@ from PyQt5.QtWidgets import (
     QLabel,
     QWidget,
     QVBoxLayout,
-    QScrollArea
+    QScrollArea,
+    QPushButton,  # Added for the back button
 )
 from PyQt5.QtCore import Qt
 from Database import Database
 from Tools import Tools
 
+
 class Search(QWidget):
-    def __init__(self,city,description,feature,price, parent_position=None):
+    def __init__(self, city, description, feature, price, parent_position=None):
         super().__init__()
 
         self.cityS = city
@@ -42,28 +44,38 @@ class Search(QWidget):
         # Obtain listings' data from DB
         listings = self.obtain_listings()
         if listings:
-            for unit_id, unit in listings.items(): 
-                features_str = ', '.join(unit['features'])  
-                listingLabel = QLabel(f"Title: {unit['title']}, Description: {unit['description']}, "
-                                    f"Features: {features_str}, Price: {unit['price']}")
+            for unit_id, unit in listings.items():
+                features_str = ", ".join(unit["features"])
+                listingLabel = QLabel(
+                    f"Title: {unit['title']}, Description: {unit['description']}, "
+                    f"Features: {features_str}, Price: {unit['price']}"
+                )
                 resultsLayout.addWidget(listingLabel)
         else:
-            resultsLayout.addWidget(QLabel("Sorry! No available units found with the description provided."))
+            resultsLayout.addWidget(
+                QLabel("Sorry! No available units found with the description provided.")
+            )
 
+        # Add back button
+        backButton = QPushButton("Back")
+        backButton.clicked.connect(self.close)
+        mainLayout.addWidget(backButton)
 
-        #set mainLayout and add the scroll area
+        # set mainLayout and add the scroll area
         mainLayout.addWidget(scroll)
         self.setLayout(mainLayout)
 
     def obtain_listings(self):
         # Connect to the database and retrieve listings based on criteria
         db = Database(
-            host='localhost',
-            user='admin_user',
-            password='CS440Database',
-            database='CS440_DB_DESIGN',
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
         )
         db.connect()
-        listings = db.obtain_listings(self.cityS, self.descriptionS, self.featureS, self.priceS)
+        listings = db.obtain_listings(
+            self.cityS, self.descriptionS, self.featureS, self.priceS
+        )
         db.close()
         return listings

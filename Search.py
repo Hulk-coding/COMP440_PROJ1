@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
     QScrollArea,
     QPushButton,  # Added for the back button
     QHBoxLayout,  # Added for Horizontal layout
+    QMessageBox,
 )
 from PyQt5.QtCore import Qt
 from Database import Database
@@ -14,13 +15,24 @@ from review import ReviewWindow
 
 
 class Search(QWidget):
-    def __init__(self, city, description, feature, price, parent_position=None):
+    def __init__(
+        self,
+        city,
+        description,
+        feature,
+        price,
+        username,
+        new_listing_added=False,
+        parent_position=None,
+    ):
         super().__init__()
 
         self.cityS = city
         self.descriptionS = description
         self.featureS = feature
         self.priceS = price
+        self.username = username  # Added this to store the username
+        self.new_listing_added = new_listing_added
 
         self.showListings()
 
@@ -29,6 +41,12 @@ class Search(QWidget):
 
         # Set up layout
         mainLayout = QVBoxLayout()
+
+        # Display message if a new listing was added
+        if self.new_listing_added:
+            QMessageBox.information(
+                self, "New Listing", "A new listing has been added successfully!"
+            )
 
         # Title label
         title = QLabel(" Listings: ")
@@ -71,7 +89,7 @@ class Search(QWidget):
             )
 
         backButton = QPushButton("Back")
-        backButton.clicked.connect(self.close)
+        backButton.clicked.connect(self.returnToRentals)
         mainLayout.addWidget(backButton)
 
         # set mainLayout and add the scroll area
@@ -97,3 +115,10 @@ class Search(QWidget):
     def open_reviews(self, unit_id):
         self.review_window = ReviewWindow(self.username, unit_id)
         self.review_window.show()
+
+    def returnToRentals(self):
+        from Rentals import Rentals  # Import here to avoid circular import
+
+        self.rentals_window = Rentals(self.username)
+        self.rentals_window.show()
+        self.close()

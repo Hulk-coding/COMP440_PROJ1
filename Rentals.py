@@ -137,12 +137,6 @@ class Rentals(QWidget):
 
         self.setWindowFlags(Qt.Window)
 
-    def open_search_window(self):
-        self.review_window = Search(self.frameGeometry().center())
-        self.review_window.setFixedSize(400, 300)
-
-        self.search_window.show()
-
     # successfully created lisitng
     def createListing(self):
         city = self.cityIn.text()
@@ -160,7 +154,10 @@ class Rentals(QWidget):
         db.connect()
         if db.insert_new_unit(city, description, price, self.username, feature):
             QMessageBox.information(self, "SUCCESS", "Listing Created Successfully.")
-            self.clear_all_fields(city, description, feature, price)
+            self.clear_all_fields()
+            self.openSearchPage(
+                True
+            )  # Open Search page with a flag indicating a new listing is added
         else:
             QMessageBox.warning(self, "ERROR", "Failed to create listing.")
         db.close()
@@ -192,7 +189,7 @@ class Rentals(QWidget):
         except Exception as e:
             print(f"Error loading stylesheet: {e}")
 
-    def clear_all_fields(self, city, description, feature, price):
+    def clear_all_fields(self):
         # Clear the form fields after submission
         Tools.clear_form_fields(
             self.cityIn, self.descriptionIn, self.featureIn, self.priceIn

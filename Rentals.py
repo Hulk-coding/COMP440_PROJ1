@@ -1,21 +1,5 @@
-import bcrypt, re
-from PyQt5.QtWidgets import (
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QWidget,
-    QVBoxLayout,
-    QFormLayout,
-    QHBoxLayout,
-    QDesktopWidget,
-    QMessageBox,
-)
-from PyQt5.QtCore import Qt, QRegExp
-from PyQt5.QtGui import QRegExpValidator, QColor
-from Database import Database
-from Tools import Tools
 
-import bcrypt
+# import bcrypt
 from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
@@ -23,22 +7,21 @@ from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QFormLayout,
-    QDesktopWidget,
     QHBoxLayout,
     QMessageBox,
 )
 from PyQt5.QtCore import Qt
-from Create import Create
 from Database import Database
 from Tools import Tools
+from Search import Search
 
 class Rentals(QWidget):
-    def __init__(self, username, password, parent_position=None):
+    def __init__(self, username, parent_position=None):
         super().__init__()
-        
+         
         #to get access to the users info and verify listing count
         self.username = username
-        self.password = password
+       
          # loading stylesheet
         self.loadStylesheet("StyleSheet.qss")
 
@@ -83,7 +66,7 @@ class Rentals(QWidget):
         # Connect create button to create function
         self.createListingButton.clicked.connect(self.createListing)
         # greg added function
-        self.searchListingButton.clicked.connect(self.open_search_window)
+        self.searchListingButton.clicked.connect(self.showSearchWindow)
 
         # adding style elements
         self.createListingButton.setObjectName("loginButton")
@@ -156,7 +139,7 @@ class Rentals(QWidget):
 
         self.setWindowFlags(Qt.Window)
 
-    # greg added create function
+  
     def open_search_window(self):
         self.review_window = Search(self.frameGeometry().center())
         self.review_window.setFixedSize(400, 300)
@@ -170,21 +153,6 @@ class Rentals(QWidget):
         description = self.descriptionIn.text()
         feature = self.featureIn.text()
         price = self.priceIn.text()
-        
-        countListingToday = self.get_count_listing(self.username, self.password)
-
-        #condition to createlisting successfully
-        if self.get_password(username, password) and (countListingToday < 2):
-            QMessageBox.information(
-                self, "Listing Created Successfully", "You have successfully created a listing!"
-            )
-            self.clear_all_fields(username, password)
-            self.showRentalsWindow()
-
-        # Validate all fields before proceeding
-        if not all([city, description, feature, price]):
-            QMessageBox.warning(self, "Input Error", "All fields must be filled")
-            return
 
 
         # Here we can store the user information in our database
@@ -195,27 +163,24 @@ class Rentals(QWidget):
             database="CS440_DB_DESIGN",
         )
         db.connect()
-        if db.insert(city, description, feature, price):
-            QMessageBox.information(self, "SUCCESS", "Account Created Successfully.")
+        if db.insert_new_unit(city, description, price, self.username, feature):
+            QMessageBox.information(self, "SUCCESS", "Listing Created Successfully.")
         db.close()
      
-        self.clear_all_fields()
+        self.clear_all_fields(city, description, feature, price)
         # Close the window after the account creation
-        self.close()
-        
-    #funciton that obtains the number of listings created on the same day
-    def get_count_listing(self, username, password):
-        db = Database(
-            host='localhost',
-            user='admin_user',
-            password='CS440Database',
-            database='CS440_DB_DESIGN',
-        )
-        db.connect()
-        listingCount = db.get_user_listing_count(username, password)
-        db.close()
-        return listingCount        
+        self.close()     
 
+    #function created to show the rentals window        
+    def showSearchWindow(self):
+        city = self.cityIn.text()
+        description = self.descriptionIn.text()
+        feature = self.featureIn.text()
+        price = self.priceIn.text()
+
+        self.searchWindow = Search(city, description, feature, price)  
+        self.searchWindow.showMaximized()
+        self.close()
 
     def loadStylesheet(self, filename):
         try:

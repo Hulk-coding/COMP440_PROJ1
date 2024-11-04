@@ -1,15 +1,15 @@
 import sys
-import mysql.connector
+# import mysql.connector
 from PyQt5.QtWidgets import (
-    QApplication,
+    # QApplication,
     QWidget,
     QVBoxLayout,
-    QHBoxLayout,
+    # QHBoxLayout,
     QLabel,
     QComboBox,
     QTextEdit,
     QPushButton,
-    QMessageBox,
+    # QMessageBox,
 )
 from PyQt5.QtCore import Qt, pyqtSignal
 from Database import Database
@@ -49,44 +49,18 @@ class ReviewWindow(QWidget):
         submit_button.clicked.connect(self.submit_review)
         layout.addWidget(submit_button)
 
-        self.setLayout(layout)
-
-    def submit_review(self):
-        rating_text = self.rating_combo.currentText()
-        rating_map = {"Excellent": 3, "Good": 2, "Fair": 1, "Poor": 1}
-        rating = rating_map[rating_text]
+    def capture_and_submit_review(self):
+        # Capture the input values from the UI
         review_text = self.review_text.toPlainText()
-
-        try:
-            conn = mysql.connector.connect(
-                host="104.172.8.91",
-                user="admin_user",
-                password="CS440Database",
-                database="COMP440_Fall2024_DB",
-            )
-            cursor = conn.cursor()
-
-            # Call the procedure
-            cursor.callproc(
-                "AddReview",
-                (self.unit_id, self.username, review_text, rating),
-            )
-
-            # Commit the transaction
-            conn.commit()
-
-            QMessageBox.information(self, "Success", "Review submitted successfully.")
-            self.reviewCompleted.emit()  # Emit the signal
-            self.close()
-
-        except mysql.connector.Error as err:
-            QMessageBox.warning(self, "Error", f"Failed to submit review: {err}")
-
-        finally:
-            if conn.is_connected():
-                cursor.close()
-                conn.close()
-
-    def closeEvent(self, event):
-        self.reviewCompleted.emit()  # Emit the signal when window is closed
-        super().closeEvent(event)
+        rating = self.rating_combo.currentText()
+        
+        db = Database(
+                    host="localhost",
+                    user="admin_user",
+                    password="CS440Database",
+                    database="CS440_DB_DESIGN",
+                )
+        db.connect()
+        # Call the method to submit the review
+        db.submit_review(self.unit_id, self.username, review_text, rating):
+        db.close()    

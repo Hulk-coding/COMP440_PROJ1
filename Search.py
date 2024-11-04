@@ -5,10 +5,12 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QScrollArea,
     QPushButton,  # Added for the back button
+    QHBoxLayout,  # Added for Horizontal layout
 )
 from PyQt5.QtCore import Qt
 from Database import Database
 from Tools import Tools
+from review import ReviewWindow
 
 
 class Search(QWidget):
@@ -46,11 +48,23 @@ class Search(QWidget):
         if listings:
             for unit_id, unit in listings.items():
                 features_str = ", ".join(unit["features"])
+                listingWidget = QWidget()
+                listingLayout = QHBoxLayout()
                 listingLabel = QLabel(
                     f"Title: {unit['title']}, Description: {unit['description']}, "
                     f"Features: {features_str}, Price: {unit['price']}"
                 )
                 resultsLayout.addWidget(listingLabel)
+
+                # Add 'reviews' button
+                reviewsButton = QPushButton("Reviews")
+                reviewsButton.clicked.connect(
+                    lambda _, id=unit_id: self.open_reviews(id)
+                )
+                listingLayout.addWidget(reviewsButton)
+
+                listingWidget.setLayout(listingLayout)
+                resultsLayout.addWidget(listingWidget)
         else:
             resultsLayout.addWidget(
                 QLabel("Sorry! No available units found with the description provided.")
@@ -78,3 +92,8 @@ class Search(QWidget):
         )
         db.close()
         return listings
+
+    # This method handles opening the ReviewWindow.
+    def open_reviews(self, unit_id):
+        self.review_window = ReviewWindow(self.username, unit_id)
+        self.review_window.show()

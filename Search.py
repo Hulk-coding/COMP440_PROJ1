@@ -56,7 +56,6 @@ class Search(QWidget):
                 QLabel("Sorry! No available units found with the description provided.")
             )
 
-        # Add back button
         backButton = QPushButton("Back")
         backButton.clicked.connect(self.close)
         mainLayout.addWidget(backButton)

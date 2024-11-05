@@ -10,11 +10,13 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from Database import Database
 from Tools import Tools
+from review import ReviewWindow
 
 class Search(QWidget):
-    def __init__(self,city,description,feature,price, username, parent_position=None):
+    def __init__(self,city,description,feature,price, username, added=False,parent_position=None):
         super().__init__()
 
+        self.added = added
         self.cityS = city
         self.descriptionS = description
         self.featureS = feature
@@ -27,6 +29,12 @@ class Search(QWidget):
 
         # Set up layout
         mainLayout = QVBoxLayout()
+        
+        if self.added:
+            QMessageBox.information(
+                self, "New Listing", "A new listing has been added successfully!"
+            )
+
 
         # Title label
         title = QLabel(" Listings: ")
@@ -122,3 +130,8 @@ class Search(QWidget):
         listings = db.obtain_listings(self.cityS, self.descriptionS, self.featureS, self.priceS)
         db.close()
         return listings
+    
+    
+    def open_reviews(self, unit_id):
+        self.review_window = ReviewWindow(self.username, unit_id)
+        self.review_window.show()

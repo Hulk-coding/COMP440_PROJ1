@@ -141,12 +141,12 @@ class Rentals(QWidget):
         self.setWindowFlags(Qt.Window)
 
   
-    def open_search_window(self):
-        self.review_window = Search(self.frameGeometry().center())
-        self.review_window.setFixedSize(400, 300)
+    # def open_search_window(self):
+    #     self.review_window = Search(self.frameGeometry().center())
+    #     self.review_window.setFixedSize(400, 300)
 
         
-        self.search_window.show()
+    #     self.search_window.show()
 
     #successfully created lisitng
     def createListing(self):
@@ -157,11 +157,19 @@ class Rentals(QWidget):
 
 
         # Here we can store the user information in our database
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="CS440_DB_DESIGN",
+        # )
+
+        ###Martin's connection
         db = Database(
             host="localhost",
             user="admin_user",
             password="CS440Database",
-            database="CS440_DB_DESIGN",
+            database="COMP440_Fall2024_DB",
         )
         db.connect()
         if db.insert_new_unit(city, description, price, self.username, feature):

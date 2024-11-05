@@ -21,6 +21,7 @@ class Rentals(QWidget):
          
         #to get access to the users info and verify listing count
         self.username = username
+        self.added = False
        
          # loading stylesheet
         self.loadStylesheet("StyleSheet.qss")
@@ -166,7 +167,9 @@ class Rentals(QWidget):
         if db.insert_new_unit(city, description, price, self.username, feature):
             QMessageBox.information(self, "SUCCESS", "Listing Created Successfully.")
         db.close()
-     
+
+        self.added = True
+        
         self.clear_all_fields(city, description, feature, price)
         # Close the window after the account creation
         self.close()     
@@ -178,7 +181,7 @@ class Rentals(QWidget):
         feature = self.featureIn.text()
         price = self.priceIn.text()
 
-        self.searchWindow = Search(city, description, feature, price)  
+        self.searchWindow = Search(city, description, feature, price, self.username, self.added)  
         self.searchWindow.showMaximized()
         self.close()
 

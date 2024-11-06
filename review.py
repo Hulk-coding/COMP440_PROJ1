@@ -1,8 +1,10 @@
 import sys
+
 # import mysql.connector
 from PyQt5.QtWidgets import (
     # QApplication,
     QWidget,
+    QMainWindow,
     QVBoxLayout,
     # QHBoxLayout,
     QLabel,
@@ -12,7 +14,12 @@ from PyQt5.QtWidgets import (
     # QMessageBox,
 )
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal
 from Database import Database
+
+
+class ReviewWindow(QMainWindow):
+    reviewCompleted = pyqtSignal()
 
 
 class ReviewWindow(QWidget):
@@ -46,21 +53,39 @@ class ReviewWindow(QWidget):
 
         # Submit button
         submit_button = QPushButton("Submit Review")
-        submit_button.clicked.connect(self.submit_review)
+        submit_button.clicked.connect(self.capture_and_submit_review)
         layout.addWidget(submit_button)
 
     def capture_and_submit_review(self):
         # Capture the input values from the UI
+        rating_mapping = {"Poor": 1, "Fair": 2, "Good": 3, "Excellent": 4}
         review_text = self.review_text.toPlainText()
-        rating = self.rating_combo.currentText()
-        
+        rating_text = self.rating_combo.currentText()
+        rating = rating_mapping.get(rating_text)
+
+        # db = Database(
+        #             host="localhost",
+        #             user="admin_user",
+        #             password="CS440Database",
+        #             database="CS440_DB_DESIGN",
+        #         )
+        # db.connect()
+
+        ###Martin's connection
         db = Database(
-                    host="localhost",
-                    user="admin_user",
-                    password="CS440Database",
-                    database="CS440_DB_DESIGN",
-                )
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="COMP440_Fall2024_DB",
+        )
         db.connect()
         # Call the method to submit the review
-        db.submit_review(self.unit_id, self.username, review_text, rating):
-        db.close()    
+        db.submit_review(self.unit_id, self.username, review_text, rating)
+        db.close()
+
+        self.reviewCompleted.emit()
+        self.close()
+
+    def closeEvent(self, event):
+        self.reviewCompleted.emit()
+        super().closeEvent(event)

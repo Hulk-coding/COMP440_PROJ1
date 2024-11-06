@@ -172,11 +172,20 @@ class Login(QWidget):
         return is_password
 
     def get_password(self, username, password):
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="CS440_DB_DESIGN",
+        # )
+        # db.connect()
+
+         ###Martin's connection
         db = Database(
             host="localhost",
             user="admin_user",
             password="CS440Database",
-            database="CS440_DB_DESIGN",
+            database="COMP440_Fall2024_DB",
         )
         db.connect()
         is_password = db.check_password(username, password)

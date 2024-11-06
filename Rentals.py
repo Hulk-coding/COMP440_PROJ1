@@ -21,6 +21,7 @@ class Rentals(QWidget):
          
         #to get access to the users info and verify listing count
         self.username = username
+        self.added = False
        
          # loading stylesheet
         self.loadStylesheet("StyleSheet.qss")
@@ -140,12 +141,12 @@ class Rentals(QWidget):
         self.setWindowFlags(Qt.Window)
 
   
-    def open_search_window(self):
-        self.review_window = Search(self.frameGeometry().center())
-        self.review_window.setFixedSize(400, 300)
+    # def open_search_window(self):
+    #     self.review_window = Search(self.frameGeometry().center())
+    #     self.review_window.setFixedSize(400, 300)
 
         
-        self.search_window.show()
+    #     self.search_window.show()
 
     #successfully created lisitng
     def createListing(self):
@@ -156,17 +157,27 @@ class Rentals(QWidget):
 
 
         # Here we can store the user information in our database
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="CS440_DB_DESIGN",
+        # )
+
+        ###Martin's connection
         db = Database(
             host="localhost",
             user="admin_user",
             password="CS440Database",
-            database="CS440_DB_DESIGN",
+            database="COMP440_Fall2024_DB",
         )
         db.connect()
         if db.insert_new_unit(city, description, price, self.username, feature):
             QMessageBox.information(self, "SUCCESS", "Listing Created Successfully.")
         db.close()
-     
+
+        self.added = True
+        
         self.clear_all_fields(city, description, feature, price)
         # Close the window after the account creation
         self.close()     
@@ -178,7 +189,7 @@ class Rentals(QWidget):
         feature = self.featureIn.text()
         price = self.priceIn.text()
 
-        self.searchWindow = Search(city, description, feature, price)  
+        self.searchWindow = Search(city, description, feature, price, self.username, self.added)  
         self.searchWindow.showMaximized()
         self.close()
 

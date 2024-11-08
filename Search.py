@@ -12,6 +12,7 @@ from Database import Database
 from Tools import Tools
 from review import ReviewWindow
 
+
 class Search(QWidget):
     def __init__(self,city,description,feature,price, username, added=False,parent_position=None):
         super().__init__()
@@ -102,7 +103,7 @@ class Search(QWidget):
             )
 
         backButton = QPushButton("Back")
-        #backButton.clicked.connect(self.returnToRentals)
+        backButton.clicked.connect(self.returnToRentals)
         backButton.setFixedSize(100,50)
         mainLayout.addWidget(backButton)
 
@@ -135,3 +136,11 @@ class Search(QWidget):
     def open_reviews(self, unit_id):
         self.review_window = ReviewWindow(self.username, unit_id)
         self.review_window.show()
+
+    def returnToRentals(self):
+        from Rentals import Rentals
+        self.rentalsWindow = Rentals(self.username)  
+        self.rentalsWindow.showMaximized()
+        self.close()
+        
+    

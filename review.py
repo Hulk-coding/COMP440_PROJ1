@@ -50,9 +50,7 @@ class ReviewWindow(QWidget):
         # Submit button
         submit_button = QPushButton("Submit Review")
         submit_button.clicked.connect(self.capture_and_submit_review)
-        submit_button.clicked.connect(self.closeReview)
-        submit_button.clicked.connect(self.capture_and_submit_review)
-        layout.addWidget(submit_button)
+        submit_button.clicked.connect(self.closeReview)  # Close after submission
 
     def capture_and_submit_review(self):
         # Capture the input values from the UI
@@ -78,11 +76,11 @@ class ReviewWindow(QWidget):
             password="=lrD(nC2b?87",
             database="COMP440_Fall2024_DB",
         )
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="COMP440_Fall2024_DB",
-        )
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="COMP440_Fall2024_DB",
+        # )
         db.connect()
         # Call the method to submit the review
         db.submit_review(self.unit_id, self.username, review_text, rating)
@@ -91,6 +89,10 @@ class ReviewWindow(QWidget):
         self.reviewCompleted.emit()
         self.close()
 
+    def closeReview(self):
+        self.reviewCompleted.emit()  # Emit signal if needed
+        self.hide()  # Hide instead of closing a new window
+
     def closeEvent(self, event):
-        self.reviewCompleted.emit()
-        super().closeEvent(event)
+        self.reviewCompleted.emit()  # Emit signal on close
+        super().closeEvent(event)  # Call parent class's closeEvent method

@@ -133,11 +133,11 @@ class Database:
             # Commit the transaction
             self.connection.commit()
 
-            QMessageBox.information(self, "Success", "Review submitted successfully.")
+            print('review added to database')
             self.close()
 
-        except mysql.connector.Error as err:
-            QMessageBox.warning(self, "Error", f"Failed to submit review: {err}")
+        except mysql.connector.Error as e:
+            print(f"Error: {e}")
 
         finally:
             if self.connection:

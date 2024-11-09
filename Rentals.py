@@ -21,9 +21,16 @@ class Rentals(QWidget):
 
         # to get access to the users info and verify listing count
         self.username = username
+<<<<<<< HEAD
 
         # loading stylesheet
         # self.loadStylesheet("StyleSheet.qss")
+=======
+        self.added = False
+       
+         # loading stylesheet
+        self.loadStylesheet("StyleSheet.qss")
+>>>>>>> main
 
         # labels for input
         self.listingsPage = QLabel("Listings!")
@@ -137,7 +144,19 @@ class Rentals(QWidget):
 
         self.setWindowFlags(Qt.Window)
 
+<<<<<<< HEAD
     # successfully created lisitng
+=======
+  
+    # def open_search_window(self):
+    #     self.review_window = Search(self.frameGeometry().center())
+    #     self.review_window.setFixedSize(400, 300)
+
+        
+    #     self.search_window.show()
+
+    #successfully created lisitng
+>>>>>>> main
     def createListing(self):
         city = self.cityIn.text()
         description = self.descriptionIn.text()
@@ -145,10 +164,24 @@ class Rentals(QWidget):
         price = self.priceIn.text()
 
         # Here we can store the user information in our database
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="CS440_DB_DESIGN",
+        # )
+
+        ###Martin's connection
         db = Database(
+<<<<<<< HEAD
             host="127.0.0.1",
             user="root",
             password="=lrD(nC2b?87",
+=======
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+>>>>>>> main
             database="COMP440_Fall2024_DB",
         )
         db.connect()
@@ -161,6 +194,15 @@ class Rentals(QWidget):
         else:
             QMessageBox.warning(self, "ERROR", "Failed to create listing.")
         db.close()
+<<<<<<< HEAD
+=======
+
+        self.added = True
+        
+        self.clear_all_fields(city, description, feature, price)
+        # Close the window after the account creation
+        self.close()     
+>>>>>>> main
 
         # self.clear_all_fields(city, description, feature, price)
         # # Close the window after the account creation
@@ -176,11 +218,17 @@ class Rentals(QWidget):
         feature = self.featureIn.text()
         price = self.priceIn.text()
 
+<<<<<<< HEAD
         self.searchWindow = Search(
             city, description, feature, price, self.username, new_listing_added
         )
         self.searchWindow.show()
         self.close()  # Close the Rentals window
+=======
+        self.searchWindow = Search(city, description, feature, price, self.username, self.added)  
+        self.searchWindow.showMaximized()
+        self.close()
+>>>>>>> main
 
     def loadStylesheet(self, filename):
         try:

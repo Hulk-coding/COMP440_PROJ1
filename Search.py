@@ -134,5 +134,6 @@ class Search(QWidget):
         return listings
 
     def open_reviews(self, unit_id):
-        self.review_window = ReviewWindow(self.username, unit_id)
+        self.review_window = ReviewWindow(self.username, unit_id, self)
+        self.review_window.setGeometry(0, 0, self.width(), self.height())
         self.review_window.show()

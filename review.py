@@ -18,17 +18,13 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from Database import Database
 
 
-class ReviewWindow(QMainWindow):
-    reviewCompleted = pyqtSignal()
-
-
 class ReviewWindow(QWidget):
     reviewCompleted = (
         pyqtSignal()
     )  # Signal to indicate review completion or window closure
 
-    def __init__(self, username, unit_id):
-        super().__init__()
+    def __init__(self, username, unit_id, parent=None):
+        super().__init__(parent)
         self.username = username
         self.unit_id = unit_id
         self.initUI()

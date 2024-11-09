@@ -48,7 +48,7 @@ class ReviewWindow(QWidget):
         # Submit button
         submit_button = QPushButton("Submit Review")
         submit_button.clicked.connect(self.capture_and_submit_review)
-        layout.addWidget(submit_button)
+        submit_button.clicked.connect(self.closeReview)
 
     def capture_and_submit_review(self):
         # Capture the input values from the UI
@@ -65,6 +65,11 @@ class ReviewWindow(QWidget):
         # Call the method to submit the review
         db.submit_review(self.unit_id, self.username, review_text, rating)
         db.close()
+        self.reviewCompleted.emit()
+        self.close()
+
+    # Method to close the overlay
+    def closeReview(self):
         self.reviewCompleted.emit()
         self.close()
 

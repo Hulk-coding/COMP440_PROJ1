@@ -177,18 +177,15 @@ class Create(QWidget):
         # )
         # db.connect()
 
-         ###Martin's connection
+        ###Martin's connection
         db = Database(
-<<<<<<< HEAD
             host="127.0.0.1",
             user="root",
             password="=lrD(nC2b?87",
-=======
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
->>>>>>> main
-            database="COMP440_Fall2024_DB",
+            # host="localhost",
+            # user="admin_user",
+            # password="CS440Database",
+            # database="COMP440_Fall2024_DB",
         )
         db.connect()
         if db.insert_new_user(

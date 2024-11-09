@@ -3,6 +3,7 @@ import bcrypt
 from PyQt5.QtWidgets import QMessageBox
 from mysql.connector import Error
 
+
 class Database:
     def __init__(self, host, user, password, database):
         self.host = host
@@ -39,17 +40,18 @@ class Database:
                 )
                 self.connection.commit()
                 return True
-                
+
             except mysql.connector.Error as err:
                 print(f"Insert Failed: {err}")
                 return False
-            
+
     def obtain_listings(self, city, description, feature, price):
         if self.connection:
             cursor = self.connection.cursor()
             try:
-                
-                query = """
+
+                query = (
+                    """
                 SELECT u.unitID, u.title, u.description, u.price, u.username, u.create_at, f.featureName
                 FROM units u
                 JOIN features f ON u.unitID = f.unitID
@@ -59,70 +61,68 @@ class Database:
                 
                
                 
-                """""
+                """
+                    ""
+                )
                 cursor.execute(query, (feature,))
-                
-                 
-                columns = [col[0] for col in cursor.description]  
-                listings = cursor.fetchall()
-                print('listing returned', listings)
 
-            
+                columns = [col[0] for col in cursor.description]
+                listings = cursor.fetchall()
+                print("listing returned", listings)
+
                 unit_dict = {}
                 for row in listings:
                     listing = dict(zip(columns, row))
-                    unit_id = listing['unitID']
+                    unit_id = listing["unitID"]
                     if unit_id not in unit_dict:
-                       
+
                         unit_dict[unit_id] = {
-                            'title': listing['title'],
-                            'description': listing['description'],
-                            'price': listing['price'],
-                            'username': listing['username'],
-                            'create_at': listing['create_at'],
-                            'features': []  
+                            "title": listing["title"],
+                            "description": listing["description"],
+                            "price": listing["price"],
+                            "username": listing["username"],
+                            "create_at": listing["create_at"],
+                            "features": [],
                         }
-                   
-                    unit_dict[unit_id]['features'].append(listing['featureName'])
+
+                    unit_dict[unit_id]["features"].append(listing["featureName"])
 
                 return unit_dict
-                        
-                       
+
             except Error as e:
                 print(f"Error: {e}")
-                return None 
-                
+                return None
+
             finally:
                 if self.connection:
                     cursor.close()
                     self.connection.close()
- 
-            
-    # insert new listing 
-    def insert_new_unit (self, title, description, price, username, features):
+
+    # insert new listing
+    def insert_new_unit(self, title, description, price, username, features):
         if self.connection:
             cursor = self.connection.cursor()
             try:
-                cursor.callproc('AddRental', (title, description, price, username, features))
+                cursor.callproc(
+                    "AddRental", (title, description, price, username, features)
+                )
                 self.connection.commit()
-                
-                print('Unit added to DB success')
-            
+
+                print("Unit added to DB success")
+
             except Error as e:
                 print(f"Error: {e}")
-                
+
             finally:
                 if self.connection:
                     cursor.close()
                     self.connection.close()
-                    
-                    
+
     def submit_review(self, unit_id, username, review_text, rating):
         if self.connection:
             cursor = self.connection.cursor()
 
         try:
-        
 
             # Call the procedure
             cursor.callproc(
@@ -133,7 +133,7 @@ class Database:
             # Commit the transaction
             self.connection.commit()
 
-            print('review added to database')
+            print("review added to database")
             self.close()
 
         except mysql.connector.Error as e:
@@ -144,27 +144,53 @@ class Database:
                 cursor.close()
                 self.connection.close()
 
-                
-            
-                
-    #add a function to retrieve user password for verification
+    # add a function to retrieve user password for verification
     def check_password(self, username, password):
-      
+
         cursor = self.connection.cursor()
         cursor.execute("SELECT password FROM user WHERE username = %s", (username,))
         result = cursor.fetchone()
-        
+
         if result:
-            stored_hash=result[0]
+            stored_hash = result[0]
             return bcrypt.checkpw(password.encode("utf-8"), stored_hash)
         return False
-    
-    
-    #add a function to remove a user from database
-                
+
+    # add a function to remove a user from database
+
     def close(self):
         """Closing Database..."""
         if self.connection:
             self.cursor.close()
             self.connection.close()
             print("Database Closed")
+
+    def get_reviews_by_unit_id(
+        self, unit_id
+    ):  # To retrieve reviews for a specific lising (unit_id).
+
+        # Fetch all reviews for a given unit_id"""
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                query = """
+                    SELECT username, review_text, rating 
+                    FROM reviews 
+                    WHERE unitID = %s
+                """
+                cursor.execute(query, (unit_id,))
+                reviews = cursor.fetchall()
+
+                # Return reviews as a list of dictionaries
+                return [
+                    {"username": row[0], "text": row[1], "rating": row[2]}
+                    for row in reviews
+                ]
+
+            except mysql.connector.Error as e:
+                print(f"Error fetching reviews: {e}")
+                return []
+
+            finally:
+                cursor.close()
+        return []

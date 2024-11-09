@@ -29,11 +29,20 @@ class ReviewWindow(QWidget):
         self.unit_id = unit_id
         self.initUI()
 
+        # Load existing reviews after initializing UI
+        self.load_existing_reviews()
+
     def initUI(self):
         self.setWindowTitle("Rental Review")
         self.setGeometry(100, 100, 400, 300)
 
         layout = QVBoxLayout()
+
+        # Section for displaying existing reviews
+        self.existing_reviews = QTextEdit()
+        self.existing_reviews.setReadOnly(True)
+        layout.addWidget(QLabel("Existing Reviews:"))
+        layout.addWidget(self.existing_reviews)
 
         # Dropdown for rating
         self.rating_combo = QComboBox()
@@ -96,3 +105,28 @@ class ReviewWindow(QWidget):
     def closeEvent(self, event):
         self.reviewCompleted.emit()  # Emit signal on close
         super().closeEvent(event)  # Call parent class's closeEvent method
+
+    def load_existing_reviews(self):
+        db = Database(
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="COMP440_Fall2024_DB",
+        )
+
+        db.connect()
+
+        # Database class to fetch reviews by unit_id
+        reviews = db.get_reviews_by_unit_id(self.unit_id)
+
+        db.close()
+
+        # Display reviews in the text edit widget
+        all_reviews = "\n\n".join(
+            [
+                f"User: {review['username']}\nRating: {review['rating']}\n{review['text']}"
+                for review in reviews
+            ]
+        )
+
+        self.existing_reviews.setText(all_reviews)

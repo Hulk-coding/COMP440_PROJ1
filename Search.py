@@ -5,7 +5,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QPushButton,
-    QScrollArea
+    QScrollArea,
+    QMessageBox,
 )
 from PyQt5.QtCore import Qt
 from Database import Database
@@ -14,7 +15,16 @@ from review import ReviewWindow
 
 
 class Search(QWidget):
-    def __init__(self,city,description,feature,price, username, added=False,parent_position=None):
+    def __init__(
+        self,
+        city,
+        description,
+        feature,
+        price,
+        username,
+        added=False,
+        parent_position=None,
+    ):
         super().__init__()
 
         self.added = added
@@ -30,12 +40,11 @@ class Search(QWidget):
 
         # Set up layout
         mainLayout = QVBoxLayout()
-        
+
         if self.added:
             QMessageBox.information(
                 self, "New Listing", "A new listing has been added successfully!"
             )
-
 
         # Title label
         title = QLabel(" Listings: ")
@@ -53,8 +62,8 @@ class Search(QWidget):
         # Obtain listings' data from DB
         listings = self.obtain_listings()
         # if listings:
-        #     for unit_id, unit in listings.items(): 
-        #         features_str = ', '.join(unit['features'])  
+        #     for unit_id, unit in listings.items():
+        #         features_str = ', '.join(unit['features'])
         #         listingLabel = QLabel(f"Title: {unit['title']}, Description: {unit['description']}, "
         #                             f"Features: {features_str}, Price: {unit['price']}")
         #         resultsLayout.addWidget(listingLabel)
@@ -67,34 +76,24 @@ class Search(QWidget):
                 listingWidget = QWidget()
 
                 listingLayout = QHBoxLayout()
-                listingLabel = QLabel(
-                    f"Title: {unit['title']}"
-                
-                )
-                listingLabel2 = QLabel(
-                    f"Description: {unit['description']}"
-                )
-                listingLabel3 = QLabel(
-                    f"Features: {features_str}"
-                )
-                listingLabel4 = QLabel(
-                    f"Price: {unit['price']}"
-                )
+                listingLabel = QLabel(f"Title: {unit['title']}")
+                listingLabel2 = QLabel(f"Description: {unit['description']}")
+                listingLabel3 = QLabel(f"Features: {features_str}")
+                listingLabel4 = QLabel(f"Price: {unit['price']}")
                 resultsLayout.addWidget(listingLabel)
                 resultsLayout.addWidget(listingLabel2)
                 resultsLayout.addWidget(listingLabel3)
                 resultsLayout.addWidget(listingLabel4)
-                
 
                 # Add 'reviews' button
                 reviewsButton = QPushButton("Reviews")
                 reviewsButton.clicked.connect(
                     lambda _, id=unit_id: self.open_reviews(id)
                 )
-                
-                reviewsButton.setFixedSize(100,50)
+
+                reviewsButton.setFixedSize(100, 50)
                 listingLayout.addWidget(reviewsButton)
-                
+
                 listingWidget.setLayout(listingLayout)
                 resultsLayout.addWidget(listingWidget)
         else:
@@ -103,11 +102,14 @@ class Search(QWidget):
             )
 
         backButton = QPushButton("Back")
-        backButton.clicked.connect(self.returnToRentals)
-        backButton.setFixedSize(100,50)
+
+
+        # backButton.clicked.connect(self.returnToRentals)
+        backButton.setFixedSize(100, 50)
+        main
         mainLayout.addWidget(backButton)
 
-        #set mainLayout and add the scroll area
+        # set mainLayout and add the scroll area
         mainLayout.addWidget(scroll)
         self.setLayout(mainLayout)
 
@@ -128,13 +130,15 @@ class Search(QWidget):
             database="COMP440_Fall2024_DB",
         )
         db.connect()
-        listings = db.obtain_listings(self.cityS, self.descriptionS, self.featureS, self.priceS)
+        listings = db.obtain_listings(
+            self.cityS, self.descriptionS, self.featureS, self.priceS
+        )
         db.close()
         return listings
-    
-    
+
     def open_reviews(self, unit_id):
-        self.review_window = ReviewWindow(self.username, unit_id)
+        self.review_window = ReviewWindow(self.username, unit_id, self)
+        self.review_window.setGeometry(0, 0, self.width(), self.height())
         self.review_window.show()
 
     def returnToRentals(self):

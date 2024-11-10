@@ -16,12 +16,11 @@ from Tools import Tools
 from Search import Search
 
 class Rentals(QWidget):
-    def __init__(self, username, parent_position=None):
+    def __init__(self, username, main_window):
         super().__init__()
-         
-        #to get access to the users info and verify listing count
         self.username = username
         self.added = False
+        self.main_window = main_window
        
          # loading stylesheet
         self.loadStylesheet("StyleSheet.qss")
@@ -157,20 +156,20 @@ class Rentals(QWidget):
 
 
         # Here we can store the user information in our database
-        # db = Database(
-        #     host="localhost",
-        #     user="admin_user",
-        #     password="CS440Database",
-        #     database="CS440_DB_DESIGN",
-        # )
-
-        ###Martin's connection
         db = Database(
             host="localhost",
             user="admin_user",
             password="CS440Database",
-            database="COMP440_Fall2024_DB",
+            database="CS440_DB_DESIGN",
         )
+
+        ###Martin's connection
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="COMP440_Fall2024_DB",
+        # )
         db.connect()
         if db.insert_new_unit(city, description, price, self.username, feature):
             QMessageBox.information(self, "SUCCESS", "Listing Created Successfully.")
@@ -185,16 +184,16 @@ class Rentals(QWidget):
         # Close the window after the account creation
         #self.close()     
 
-    #function created to show the rentals window        
+ 
+
     def showSearchWindow(self):
         city = self.cityIn.text()
         description = self.descriptionIn.text()
         feature = self.featureIn.text()
         price = self.priceIn.text()
 
-        self.searchWindow = Search(city, description, feature, price, self.username, self.added)  
-        self.searchWindow.showMaximized()
-        self.close()
+        self.main_window.handleRentalsToSearch(city, description, feature, price, self.username)
+
 
     def loadStylesheet(self, filename):
         try:

@@ -59,21 +59,21 @@ class ReviewWindow(QWidget):
         rating_text = self.rating_combo.currentText()
         rating = rating_mapping.get(rating_text)
 
-        # db = Database(
-        #             host="localhost",
-        #             user="admin_user",
-        #             password="CS440Database",
-        #             database="CS440_DB_DESIGN",
-        #         )
+        db = Database(
+                    host="localhost",
+                    user="admin_user",
+                    password="CS440Database",
+                    database="CS440_DB_DESIGN",
+                )
         # db.connect()
 
         ###Martin's connection
-        db = Database(
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="COMP440_Fall2024_DB",
-        )
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="COMP440_Fall2024_DB",
+        # )
         db.connect()
         # Call the method to submit the review
         db.submit_review(self.unit_id, self.username, review_text, rating)

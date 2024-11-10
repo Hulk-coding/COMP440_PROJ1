@@ -102,8 +102,11 @@ class Search(QWidget):
             )
 
         backButton = QPushButton("Back")
+
+
         # backButton.clicked.connect(self.returnToRentals)
         backButton.setFixedSize(100, 50)
+        main
         mainLayout.addWidget(backButton)
 
         # set mainLayout and add the scroll area
@@ -137,3 +140,11 @@ class Search(QWidget):
         self.review_window = ReviewWindow(self.username, unit_id, self)
         self.review_window.setGeometry(0, 0, self.width(), self.height())
         self.review_window.show()
+
+    def returnToRentals(self):
+        from Rentals import Rentals
+        self.rentalsWindow = Rentals(self.username)  
+        self.rentalsWindow.showMaximized()
+        self.close()
+        
+    

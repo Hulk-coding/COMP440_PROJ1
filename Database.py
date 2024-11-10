@@ -107,6 +107,7 @@ class Database:
                 self.connection.commit()
                 
                 print('Unit added to DB success')
+                return True
             
             except Error as e:
                 print(f"Error: {e}")

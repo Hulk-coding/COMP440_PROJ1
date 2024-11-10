@@ -174,13 +174,16 @@ class Rentals(QWidget):
         db.connect()
         if db.insert_new_unit(city, description, price, self.username, feature):
             QMessageBox.information(self, "SUCCESS", "Listing Created Successfully.")
+            self.added = True
+        else:
+            QMessageBox.information(self, "Failed", "User has reached the maximum of 2 listings for today.")    
         db.close()
 
-        self.added = True
+        # self.added = True
         
         self.clear_all_fields(city, description, feature, price)
         # Close the window after the account creation
-        self.close()     
+        #self.close()     
 
     #function created to show the rentals window        
     def showSearchWindow(self):

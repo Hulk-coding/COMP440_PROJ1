@@ -18,7 +18,16 @@ from review import ReviewWindow
 
 
 class Search(QWidget):
-    def __init__(self,city,description,feature,price, username, added=False,parent_position=None):
+    def __init__(
+        self,
+        city,
+        description,
+        feature,
+        price,
+        username,
+        added=False,
+        parent_position=None,
+    ):
         super().__init__()
 
         self.loadStylesheet("StyleSheet.qss")
@@ -103,10 +112,10 @@ class Search(QWidget):
                 QLabel("Sorry! No available units found with the description provided.")
             )
 
-        backButton = QPushButton("Back")
-        backButton.clicked.connect(self.returnToRentals)
-        backButton.setFixedSize(100, 50)
-        mainLayout.addWidget(backButton)
+        # backButton = QPushButton("Back")
+        # backButton.clicked.connect(self.returnToRentals)
+        # backButton.setFixedSize(100, 50)
+        # mainLayout.addWidget(backButton)
 
         # adding layouts to main layout and the scroll feature
         mainLayout.addWidget(scroll)
@@ -121,7 +130,7 @@ class Search(QWidget):
         #     database='CS440_DB_DESIGN',
         # )
 
-        ###Martin's connection
+        ##Martin's connection
         db = Database(
             host="localhost",
             user="admin_user",
@@ -129,13 +138,15 @@ class Search(QWidget):
             database="COMP440_Fall2024_DB",
         )
         db.connect()
-        listings = db.obtain_listings(self.cityS, self.descriptionS, self.featureS, self.priceS)
+        listings = db.obtain_listings(
+            self.cityS, self.descriptionS, self.featureS, self.priceS
+        )
         db.close()
         return listings
-    
-    
+
     def open_reviews(self, unit_id):
-        self.review_window = ReviewWindow(self.username, unit_id)
+        self.review_window = ReviewWindow(self.username, unit_id, self)
+        self.review_window.setGeometry(0, 0, self.width(), self.height())
         self.review_window.show()
 
     def returnToRentals(self):

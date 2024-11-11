@@ -1,4 +1,5 @@
 import sys
+
 # import mysql.connector
 from PyQt5.QtWidgets import (
     # QApplication,
@@ -13,29 +14,26 @@ from PyQt5.QtWidgets import (
     # QMessageBox,
 )
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal
 from Database import Database
 
 
-class ReviewWindow(QMainWindow):
+class ReviewWindow(QWidget):
     reviewCompleted = (
         pyqtSignal()
-    )
-    
-    def __init__(self, username, unit_id):
-        super().__init__()
+    )  # Signal to indicate review completion or window closure
+
+    def __init__(self, username, unit_id, parent=None):
+        super().__init__(parent)
         self.username = username
         self.unit_id = unit_id
         self.initUI()
-        
-
 
     def initUI(self):
         self.setWindowTitle("Rental Review")
         self.setGeometry(100, 100, 400, 300)
 
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
+        layout = QVBoxLayout()
 
         # Dropdown for rating
         self.rating_combo = QComboBox()
@@ -56,36 +54,31 @@ class ReviewWindow(QMainWindow):
 
     def capture_and_submit_review(self):
         # Capture the input values from the UI
-        rating_mapping = {
-            "Poor": 1,
-            "Fair": 2,
-            "Good": 3,
-            "Excellent": 4
-        }
+        rating_mapping = {"Poor": 1, "Fair": 2, "Good": 3, "Excellent": 4}
         review_text = self.review_text.toPlainText()
         rating_text = self.rating_combo.currentText()
         rating = rating_mapping.get(rating_text)
-        
-        # db = Database(
-        #             host="localhost",
-        #             user="admin_user",
-        #             password="CS440Database",
-        #             database="CS440_DB_DESIGN",
-        #         )
+
+        db = Database(
+                    host="localhost",
+                    user="admin_user",
+                    password="CS440Database",
+                    database="CS440_DB_DESIGN",
+                )
         # db.connect()
 
-         ###Martin's connection
-        db = Database(
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="COMP440_Fall2024_DB",
-        )
+        ###Martin's connection
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="COMP440_Fall2024_DB",
+        # )
         db.connect()
         # Call the method to submit the review
         db.submit_review(self.unit_id, self.username, review_text, rating)
-        db.close()    
-        
+        db.close()
+
         self.reviewCompleted.emit()
         self.close()
 

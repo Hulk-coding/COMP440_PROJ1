@@ -156,20 +156,20 @@ class Rentals(QWidget):
 
 
         # Here we can store the user information in our database
-        db = Database(
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="CS440_DB_DESIGN",
-        )
-
-        ###Martin's connection
         # db = Database(
         #     host="localhost",
         #     user="admin_user",
         #     password="CS440Database",
-        #     database="COMP440_Fall2024_DB",
+        #     database="CS440_DB_DESIGN",
         # )
+
+        ##Martin's connection
+        db = Database(
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="COMP440_Fall2024_DB",
+        )
         db.connect()
         if db.insert_new_unit(city, description, price, self.username, feature):
             QMessageBox.information(self, "SUCCESS", "Listing Created Successfully.")

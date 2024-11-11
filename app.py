@@ -6,6 +6,7 @@ from Create import Create
 from Login import Login
 from Rentals import Rentals
 from Search import Search
+from review import ReviewWindow
 
 
 class MainWindow(QMainWindow):
@@ -19,6 +20,7 @@ class MainWindow(QMainWindow):
         self.login_form = Login()
         self.rentals_form = None
         self.search_form = None
+        self.reviews_form = None
 
         self.setCentralWidget(self.login_form)
         self.createNav()
@@ -28,18 +30,11 @@ class MainWindow(QMainWindow):
     def createNav(self):
         toolbar = self.addToolBar("Navigation")
 
-        # self.login_btn = QPushButton("Login")
-        # self.login_btn.clicked.connect(lambda: self.switchView(self.login_form))
-        # toolbar.addWidget(self.login_btn)
-
         self.rentals_btn = QPushButton("Search")
         self.rentals_btn.setEnabled(False)
         self.rentals_btn.clicked.connect(self.handleLogin)
         toolbar.addWidget(self.rentals_btn)
 
-        # self.search_btn = QPushButton("Listings")
-        # self.search_btn.clicked.connect(lambda: self.switchView(self.search_form))
-        # toolbar.addWidget(self.search_btn)
 
     def switchView(self, new_widget):
         if new_widget:
@@ -52,8 +47,12 @@ class MainWindow(QMainWindow):
 
 
     def handleRentalsToSearch(self, city, description, feature, price, username):
-        self.search_form = Search(city, description, feature, price, username)
+        self.search_form = Search(city, description, feature, price, username, self)
         self.switchView(self.search_form)
+        
+    def handleSearchToReviews(self, unit_id, username):
+        self.reviews_form = ReviewWindow(username, unit_id)
+        self.switchView(self.reviews_form)
 
     # Find user screen size
     def getWindowSize(self):

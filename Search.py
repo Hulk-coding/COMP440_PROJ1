@@ -25,13 +25,17 @@ class Search(QWidget):
         feature,
         price,
         username,
+        main_window,
         added=False,
-        parent_position=None,
     ):
         super().__init__()
 
         self.loadStylesheet("StyleSheet.qss")
 
+        self.loadStylesheet("StyleSheet.qss")
+
+
+        self.main_window = main_window
         self.added = added
         self.cityS = city
         self.descriptionS = description
@@ -88,9 +92,11 @@ class Search(QWidget):
                 buttonLayout = QHBoxLayout()
                 buttonLayout.addStretch() 
                 reviewsButton = QPushButton("Reviews")
-                reviewsButton.clicked.connect(
-                    lambda _, id=unit_id: self.open_reviews(id)
-                )
+                reviewsButton.clicked.connect(lambda _, id=unit_id: self.main_window.handleSearchToReviews(id, self.username))
+
+
+
+
                 reviewsButton.setFixedSize(100, 50)
                 buttonLayout.addWidget(reviewsButton)
                 buttonLayout.addStretch()  

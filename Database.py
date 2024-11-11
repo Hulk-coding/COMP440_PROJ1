@@ -169,3 +169,34 @@ class Database:
             self.cursor.close()
             self.connection.close()
             print("Database Closed")
+
+
+    def get_reviews_by_unit_id(
+        self, unit_id
+    ):  # To retrieve reviews for a specific lising (unit_id).
+
+        # Fetch all reviews for a given unit_id"""
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                query = """
+                    SELECT username, reviewText, rating 
+                    FROM reviews 
+                    WHERE unitID = %s
+                """
+                cursor.execute(query, (unit_id,))
+                reviews = cursor.fetchall()
+
+                # Return reviews as a list of dictionaries
+                return [
+                    {"username": row[0], "text": row[1], "rating": row[2]}
+                    for row in reviews
+                ]
+
+            except mysql.connector.Error as e:
+                print(f"Error fetching reviews: {e}")
+                return []
+
+            finally:
+                cursor.close()
+        return []

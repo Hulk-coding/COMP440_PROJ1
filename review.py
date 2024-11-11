@@ -14,26 +14,31 @@ from PyQt5.QtWidgets import (
     # QMessageBox,
 )
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtCore import Qt, pyqtSignal
 from Database import Database
 
 
 class ReviewWindow(QWidget):
-    reviewCompleted = (
-        pyqtSignal()
-    )  # Signal to indicate review completion or window closure
-
-    def __init__(self, username, unit_id, parent=None):
-        super().__init__(parent)
+    reviewCompleted = pyqtSignal()
+    
+    
+    def __init__(self, username, unit_id):
+        super().__init__()
         self.username = username
         self.unit_id = unit_id
         self.initUI()
+        # self.load_existing_reviews()
 
     def initUI(self):
         self.setWindowTitle("Rental Review")
-        self.setGeometry(100, 100, 400, 300)
+        # self.setGeometry(100, 100, 400, 300)
 
         layout = QVBoxLayout()
+        
+        self.existing_reviews = QTextEdit()
+        self.existing_reviews.setReadOnly(True)
+        layout.addWidget(QLabel("Existing Reviews:"))
+        layout.addWidget(self.existing_reviews)       
+        
 
         # Dropdown for rating
         self.rating_combo = QComboBox()
@@ -51,6 +56,7 @@ class ReviewWindow(QWidget):
         submit_button = QPushButton("Submit Review")
         submit_button.clicked.connect(self.capture_and_submit_review)
         layout.addWidget(submit_button)
+        # submit_button.clicked.connect(self.closeReview)
 
     def capture_and_submit_review(self):
         # Capture the input values from the UI
@@ -82,6 +88,45 @@ class ReviewWindow(QWidget):
         self.reviewCompleted.emit()
         self.close()
 
+    def closeReview(self):
+        self.reviewCompleted.emit()  
+        self.hide()
+
     def closeEvent(self, event):
         self.reviewCompleted.emit()
         super().closeEvent(event)
+
+
+    def load_existing_reviews(self):
+        #greg database
+        db = Database(
+                    host="localhost",
+                    user="admin_user",
+                    password="CS440Database",
+                    database="CS440_DB_DESIGN",
+                )
+        
+        #mohomad database
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="COMP440_Fall2024_DB",
+        # )
+
+        db.connect()
+
+        # Database class to fetch reviews by unit_id
+        reviews = db.get_reviews_by_unit_id(self.unit_id)
+
+        db.close()
+
+        # Display reviews in the text edit widget
+        all_reviews = "\n\n".join(
+            [
+                f"User: {review['username']}\nRating: {review['rating']}\n{review['text']}"
+                for review in reviews
+            ]
+        )
+
+        self.existing_reviews.setText(all_reviews)

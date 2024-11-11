@@ -26,11 +26,9 @@ class ReviewWindow(QWidget):
         self.username = username
         self.unit_id = unit_id
         self.initUI()
-        # self.load_existing_reviews()
+        self.load_existing_reviews()
 
     def initUI(self):
-        self.setWindowTitle("Rental Review")
-        # self.setGeometry(100, 100, 400, 300)
 
         layout = QVBoxLayout()
         
@@ -57,6 +55,8 @@ class ReviewWindow(QWidget):
         submit_button.clicked.connect(self.capture_and_submit_review)
         layout.addWidget(submit_button)
         # submit_button.clicked.connect(self.closeReview)
+        
+        self.setLayout(layout)
 
     def capture_and_submit_review(self):
         # Capture the input values from the UI

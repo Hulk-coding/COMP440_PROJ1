@@ -11,13 +11,14 @@ from PyQt5.QtWidgets import (
     QComboBox
 )
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from Database import Database
 from Tools import Tools
 from review import ReviewWindow
 
 
 class Search(QWidget):
+    view_reviews = pyqtSignal(int, str)
     def __init__(
         self,
         city,
@@ -29,8 +30,6 @@ class Search(QWidget):
         added=False,
     ):
         super().__init__()
-
-        self.loadStylesheet("StyleSheet.qss")
 
         self.loadStylesheet("StyleSheet.qss")
 
@@ -92,9 +91,7 @@ class Search(QWidget):
                 buttonLayout = QHBoxLayout()
                 buttonLayout.addStretch() 
                 reviewsButton = QPushButton("Reviews")
-                reviewsButton.clicked.connect(lambda _, id=unit_id: self.main_window.handleSearchToReviews(id, self.username))
-
-
+                reviewsButton.clicked.connect(lambda _, id=unit_id: self.onViewReviewsButtonClicked(id))
 
 
                 reviewsButton.setFixedSize(100, 50)
@@ -118,14 +115,17 @@ class Search(QWidget):
                 QLabel("Sorry! No available units found with the description provided.")
             )
 
-        # backButton = QPushButton("Back")
-        # backButton.clicked.connect(self.returnToRentals)
-        # backButton.setFixedSize(100, 50)
-        # mainLayout.addWidget(backButton)
 
         # adding layouts to main layout and the scroll feature
         mainLayout.addWidget(scroll)
         self.setLayout(mainLayout)
+        
+    def onViewReviewsButtonClicked(self, unit_id):
+        # Create and show the review window directly
+        self.review_window = ReviewWindow(self.username, unit_id)
+        self.review_window.setGeometry(0, 0, self.width(), self.height())  # Set the geometry
+        self.review_window.show()  # Show the window
+
 
     def obtain_listings(self):
         # Connect to the database and retrieve listings based on criteria

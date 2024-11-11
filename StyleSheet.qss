@@ -34,3 +34,20 @@
     font-size: 16pt;
     color: black;
 }
+
+QWidget#grid {
+    border: 4px solid black;
+    border-radius: 2px;
+    padding: 5px;  
+    margin: 5px;    
+}
+
+#cells{
+    border: 1px solid black;  
+    padding: 0px;             
+    margin: 0px;              
+    font-size: 16pt;          
+    font-family: 'Times New Roman';
+    letter-spacing: 2px;
+    word-spacing: 5px;
+}

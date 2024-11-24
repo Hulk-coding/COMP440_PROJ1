@@ -217,6 +217,30 @@ class Database:
                         ORDER BY u.price DESC
                     """
                     cursor.execute(query)
+                    
+                elif filter_type == "units_reviews_good_or_excellent":
+                    query = """
+                        SELECT u.unitID, u.title, u.description, u.price, f.featureName
+                        FROM units u
+                        JOIN features f ON u.unitID = f.unitID
+                        JOIN reviews r ON u.unitID = r.unitID
+                        GROUP BY u.unitID, f.featureName
+                        HAVING SUM(CASE WHEN r.rating NOT IN (3, 4) THEN 1 ELSE 0 END) = 0  -- Ensure all reviews are good (3) or excellent (4)
+                        ORDER BY u.price DESC
+                    """
+                    cursor.execute(query)
+                    
+                elif filter_type == "users_only_poor_reviews":
+                    query = """
+                        SELECT u.unitID, u.title, u.description, u.price, f.featureName
+                        FROM units u
+                        JOIN features f ON u.unitID = f.unitID
+                        JOIN reviews r ON u.unitID = r.unitID
+                        GROUP BY u.unitID, f.featureName
+                        HAVING SUM(CASE WHEN r.rating != 1 THEN 1 ELSE 0 END) = 0  -- Ensure all reviews are 1
+                        ORDER BY u.price DESC
+                    """
+                    cursor.execute(query)
                 
                 else:
                     print(f"Invalid filter type: {filter_type}")

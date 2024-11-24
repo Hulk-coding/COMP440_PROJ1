@@ -43,7 +43,6 @@ class Search(QWidget):
         self.username = username
         self.showListings()
 
-
     
     def showListings(self):
         self.setWindowTitle(" Results ")
@@ -138,6 +137,8 @@ class Search(QWidget):
             self.resultsLayout.addWidget(
                 QLabel("No results found for the selected filter.")
             )
+    
+    
 
     def applyFilter(self, index):
         if index == 0:
@@ -171,7 +172,50 @@ class Search(QWidget):
         listings = db.get_filtered_items(self.current_filter)
         db.close()
 
-        self.loadListings(listings)
+        if self.current_filter == "users_only_poor_reviews":
+        # Call a method to load users with poor reviews
+            self.loadPoorReviewUsers(listings)
+        else:
+            # Call the regular method to load listings
+            self.loadListings(listings)
+            
+    def loadPoorReviewUsers(self, users=None):
+        # Clear current listings
+        for i in reversed(range(self.resultsLayout.count())):
+            self.resultsLayout.itemAt(i).widget().deleteLater()
+
+        if not users:  # This will cover both None and empty dictionary
+            self.resultsLayout.addWidget(
+                QLabel("No users found with poor reviews.")
+            )
+            return
+
+        row, column = 0, 0
+        for username in users:
+            listingWidget = QWidget()
+            listingWidget.setObjectName("grid")
+            listingLayout = QVBoxLayout()
+
+            # Ensure username is treated as a string
+            usernameLabel = QLabel("Username: " + str(username))
+            usernameLabel.setObjectName("cells")
+            listingLayout.addWidget(usernameLabel)
+
+            # Add a placeholder to show that this user gave poor reviews
+            poorReviewsLabel = QLabel("This user has given poor reviews.")
+            poorReviewsLabel.setObjectName("cells")
+            listingLayout.addWidget(poorReviewsLabel)
+
+            listingWidget.setLayout(listingLayout)
+            self.resultsLayout.addWidget(listingWidget, row, column)
+
+            column += 1
+            if column == 3:
+                column = 0
+                row += 1
+
+
+
         
     def onViewReviewsButtonClicked(self, unit_id):
         # Create and show the review window directly

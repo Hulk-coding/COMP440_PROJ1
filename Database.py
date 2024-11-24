@@ -65,7 +65,7 @@ class Database:
                  
                 columns = [col[0] for col in cursor.description]  
                 listings = cursor.fetchall()
-                print('listing returned', listings)
+                # print('listing returned', listings)
 
             
                 unit_dict = {}
@@ -200,3 +200,54 @@ class Database:
             finally:
                 cursor.close()
         return []
+    
+    
+    def get_filtered_items(self, filter_type, params=None):
+        """
+        Retrieve filtered items based on specific filter criteria.
+        """
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                if filter_type == "most_expensive_features":
+                    query = """
+                        SELECT u.unitID, u.title, u.description, u.price, f.featureName
+                        FROM units u
+                        JOIN features f ON u.unitID = f.unitID
+                        ORDER BY u.price DESC
+                    """
+                    cursor.execute(query)
+                
+                else:
+                    print(f"Invalid filter type: {filter_type}")
+                    return None
+
+                columns = [col[0] for col in cursor.description]
+                results = cursor.fetchall()
+
+                # Now process the results into a dictionary with unitID as the key and features as a list
+                unit_dict = {}
+                for row in results:
+                    listing = dict(zip(columns, row))
+                    unit_id = listing['unitID']
+                    
+                    # Initialize unit if it's not already in the dictionary
+                    if unit_id not in unit_dict:
+                        unit_dict[unit_id] = {
+                            'title': listing['title'],
+                            'description': listing['description'],
+                            'price': listing['price'],
+                            'features': []  # Start with an empty list for features
+                        }
+                    
+                    # Append the feature to the list for the given unit
+                    unit_dict[unit_id]['features'].append(listing['featureName'])
+
+                return unit_dict
+
+            except Error as e:
+                print(f"Error in get_filtered_items: {e}")
+                return None
+
+            finally:
+                cursor.close()

@@ -44,34 +44,64 @@ class Search(QWidget):
         self.showListings()
 
 
+    
     def showListings(self):
         self.setWindowTitle(" Results ")
 
         mainLayout = QVBoxLayout()
+        
+        # Add filter menu
+        filterMenuLayout = QHBoxLayout()
+        # filterLabel = QLabel("Filter: ")
+        # filterMenuLayout.addWidget(filterLabel)
+        
+        self.filterComboBox = QComboBox()
+        self.filterComboBox.addItems([
+            "Select a filter...",
+            "Most Expensive Features",
+            "Users with at least 2 units on the same day with Feature X and Y",
+            "Units posted by User X with all reviews as Excellent/Good",
+            "Users with the most rentals on 10/15/2024",
+            "Users with only Poor reviews",
+            "Users whose units never received Poor reviews",
+        ])
+        self.filterComboBox.currentIndexChanged.connect(self.applyFilter)
+        filterMenuLayout.addWidget(self.filterComboBox)
+        mainLayout.addLayout(filterMenuLayout)
+
         title = QLabel(" Listings: ")
         title.setAlignment(Qt.AlignCenter)
         mainLayout.addWidget(title)
 
-    
         scroll = QScrollArea()
-        resultsContainer = QWidget()
-        resultsLayout = QGridLayout() 
-        resultsContainer.setLayout(resultsLayout)
-        scroll.setWidget(resultsContainer)
+        self.resultsContainer = QWidget()
+        self.resultsLayout = QGridLayout()
+        self.resultsContainer.setLayout(self.resultsLayout)
+        scroll.setWidget(self.resultsContainer)
         scroll.setWidgetResizable(True)
 
-        # Obtain listings' data from DB
-        listings = self.obtain_listings()
+        mainLayout.addWidget(scroll)
+        self.setLayout(mainLayout)
+
+        # Initially load listings without filter
+        self.loadListings()
+
+    def loadListings(self, listings=None):
+        # Clear current listings
+        for i in reversed(range(self.resultsLayout.count())):
+            self.resultsLayout.itemAt(i).widget().deleteLater()
+
+        if listings is None:
+            listings = self.obtain_listings()
+
         if listings:
             row, column = 0, 0
             for unit_id, unit in listings.items():
                 features_str = ", ".join(unit["features"])
                 listingWidget = QWidget()
                 listingWidget.setObjectName("grid")
-                listingLayout = QVBoxLayout() 
-                
+                listingLayout = QVBoxLayout()
 
-                # Formatting listing in a box
                 titleLabel = QLabel("Title: " + unit['title'])
                 titleLabel.setObjectName("cells")
                 listingLayout.addWidget(titleLabel)
@@ -89,36 +119,59 @@ class Search(QWidget):
                 listingLayout.addWidget(priceLabel)
 
                 buttonLayout = QHBoxLayout()
-                buttonLayout.addStretch() 
+                buttonLayout.addStretch()
                 reviewsButton = QPushButton("Reviews")
                 reviewsButton.clicked.connect(lambda _, id=unit_id: self.onViewReviewsButtonClicked(id))
-
-
                 reviewsButton.setFixedSize(100, 50)
                 buttonLayout.addWidget(reviewsButton)
-                buttonLayout.addStretch()  
+                buttonLayout.addStretch()
 
                 listingLayout.addLayout(buttonLayout)
-                
                 listingWidget.setLayout(listingLayout)
-                resultsLayout.addWidget(listingWidget, row, column)
+                self.resultsLayout.addWidget(listingWidget, row, column)
 
-                #Grid Layout accomodation of listings 2 per row
-                #we can change the number of columns to make the listings smaller
-                #more columns = more listings in the row
                 column += 1
-                if column == 3:  
+                if column == 3:
                     column = 0
                     row += 1
         else:
-            resultsLayout.addWidget(
-                QLabel("Sorry! No available units found with the description provided.")
+            self.resultsLayout.addWidget(
+                QLabel("No results found for the selected filter.")
             )
 
+    def applyFilter(self, index):
+        if index == 0:
+            self.current_filter = None
+            self.loadListings()
+            return
 
-        # adding layouts to main layout and the scroll feature
-        mainLayout.addWidget(scroll)
-        self.setLayout(mainLayout)
+        filter_mapping = {
+            1: "most_expensive_features",
+            2: "users_two_units_same_day",
+            3: "units_reviews_good_or_excellent",
+            4: "users_most_units_10152024",
+            5: "users_only_poor_reviews",
+            6: "users_no_poor_reviews",
+        }
+
+        self.current_filter = filter_mapping.get(index)
+        self.filterListings()
+
+    def filterListings(self):
+        if not self.current_filter:
+            return
+
+        db = Database(
+            host='localhost',
+            user='admin_user',
+            password='CS440Database',
+            database='CS440_DB_DESIGN',
+        )
+        db.connect()
+        listings = db.get_filtered_items(self.current_filter)
+        db.close()
+
+        self.loadListings(listings)
         
     def onViewReviewsButtonClicked(self, unit_id):
         # Create and show the review window directly

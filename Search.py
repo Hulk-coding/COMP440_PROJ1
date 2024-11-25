@@ -328,3 +328,5 @@ class Search(QWidget):
                 self.setStyleSheet(f.read())
         except Exception as e:
             print(f"Error loading stylesheet: {e}")
+
+    # Just a comment

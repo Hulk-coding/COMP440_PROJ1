@@ -315,7 +315,7 @@ class Database:
                     WHERE DATE(create_at) = '2024-10-15'
                     GROUP BY username
                     ORDER BY COUNT(*) DESC
-                    LIMIT 1
+                    LIMIT 1 
                 )
                 """
                 cursor.execute(query)

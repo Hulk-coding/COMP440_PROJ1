@@ -1,6 +1,7 @@
 import bcrypt, re
 from PyQt5.QtWidgets import (
     QLabel,
+    QLineEdit,
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
@@ -48,6 +49,26 @@ class Search(QWidget):
         self.setWindowTitle(" Results ")
 
         mainLayout = QVBoxLayout()
+
+         # Add input fields for feature X and Y
+        self.featureLayout = QHBoxLayout()  # Store as an instance variable for visibility toggling
+        self.featureXLabel = QLabel("Feature X:")
+        self.featureXInput = QLineEdit()
+        self.featureLayout.addWidget(self.featureXLabel)
+        self.featureLayout.addWidget(self.featureXInput)
+
+        self.featureYLabel = QLabel("Feature Y:")
+        self.featureYInput = QLineEdit()
+        self.featureLayout.addWidget(self.featureYLabel)
+        self.featureLayout.addWidget(self.featureYInput)
+
+        mainLayout.addLayout(self.featureLayout)
+        
+        # Initially hide the feature inputs
+        self.featureXLabel.hide()
+        self.featureXInput.hide()
+        self.featureYLabel.hide()
+        self.featureYInput.hide()
         
         # Add filter menu
         filterMenuLayout = QHBoxLayout()
@@ -68,6 +89,15 @@ class Search(QWidget):
         filterMenuLayout.addWidget(self.filterComboBox)
         mainLayout.addLayout(filterMenuLayout)
 
+        # Add a button to show after selecting the second filter option
+        self.featureButton = QPushButton("Show Data")
+        self.featureButton.clicked.connect(self.loadUsersTwoUnits)
+        self.featureButton.setFixedSize(100, 50)
+
+        # Initially hide the button
+        self.featureButton.hide()
+        mainLayout.addWidget(self.featureButton)
+
         title = QLabel(" Listings: ")
         title.setAlignment(Qt.AlignCenter)
         mainLayout.addWidget(title)
@@ -84,6 +114,7 @@ class Search(QWidget):
 
         # Initially load listings without filter
         self.loadListings()
+        
 
     def loadListings(self, listings=None):
         # Clear current listings
@@ -141,6 +172,20 @@ class Search(QWidget):
     
 
     def applyFilter(self, index):
+        # Hide or show feature inputs based on selected filter
+        if index == 2:  # Show inputs for "Users with at least 2 units on the same day with Feature X and Y"
+            self.featureXLabel.show()
+            self.featureXInput.show()
+            self.featureYLabel.show()
+            self.featureYInput.show()
+            self.featureButton.show()  
+        else:  # Hide inputs for all other filters
+            self.featureXLabel.hide()
+            self.featureXInput.hide()
+            self.featureYLabel.hide()
+            self.featureYInput.hide()
+            self.featureButton.hide() 
+            
         if index == 0:
             self.current_filter = None
             self.loadListings()
@@ -162,23 +207,90 @@ class Search(QWidget):
         if not self.current_filter:
             return
 
+        # db = Database(
+        #     host='localhost',
+        #     user='admin_user',
+        #     password='CS440Database',
+        #     database='CS440_DB_DESIGN',
+        # )
+        # db.connect()
+        ##Martin's connection
         db = Database(
-            host='localhost',
-            user='admin_user',
-            password='CS440Database',
-            database='CS440_DB_DESIGN',
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="COMP440_Fall2024_DB",
         )
         db.connect()
-        listings = db.get_filtered_items(self.current_filter)
+        listings = db.get_filtered_items(self.current_filter, params={
+        'feature_x': self.featureXInput.text().strip(),
+            'feature_y': self.featureYInput.text().strip()
+        })
         db.close()
 
         if self.current_filter == "users_only_poor_reviews":
-        # Call a method to load users with poor reviews
             self.loadPoorReviewUsers(listings)
+        elif self.current_filter == "users_two_units_same_day":
+            self.loadUsersTwoUnits(listings)
         else:
-            # Call the regular method to load listings
             self.loadListings(listings)
-            
+
+        #function that loads users with two units same day
+    def loadUsersTwoUnits(self, listings=None):
+        feature_x = self.featureXInput.text().strip()
+        feature_y = self.featureYInput.text().strip()
+            # Clear current listings
+        for i in reversed(range(self.resultsLayout.count())):
+            self.resultsLayout.itemAt(i).widget().deleteLater()
+
+            # Get features from input fields
+        feature_x = self.featureXInput.text().strip()
+        feature_y = self.featureYInput.text().strip()
+
+        if not feature_x or not feature_y:
+            self.resultsLayout.addWidget(
+                QLabel("Please enter both Feature X and Feature Y.")
+            )
+            return
+
+            # Connect to the database and query the data
+        db = Database(
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="COMP440_Fall2024_DB",
+        )
+        db.connect()
+        users = db.get_users_two_units_same_day(feature_x, feature_y)
+        db.close()
+
+        if not users:
+            self.resultsLayout.addWidget(
+                QLabel("No users found with at least two units posted on the same day with the specified features.")
+            )
+            return
+
+            # Display results
+        row, column = 0, 0
+        for username in users:
+            listingWidget = QWidget()
+            listingWidget.setObjectName("grid")
+            listingLayout = QVBoxLayout()
+
+            usernameLabel = QLabel("Username: " + str(username))
+            usernameLabel.setObjectName("cells")
+            listingLayout.addWidget(usernameLabel)
+
+            listingWidget.setLayout(listingLayout)
+            self.resultsLayout.addWidget(listingWidget, row, column)
+
+            column += 1
+            if column == 3:
+                column = 0
+                row += 1
+
+        
+
     def loadPoorReviewUsers(self, users=None):
         # Clear current listings
         for i in reversed(range(self.resultsLayout.count())):
@@ -226,20 +338,20 @@ class Search(QWidget):
 
     def obtain_listings(self):
         # Connect to the database and retrieve listings based on criteria
-        db = Database(
-            host='localhost',
-            user='admin_user',
-            password='CS440Database',
-            database='CS440_DB_DESIGN',
-        )
+        # db = Database(
+        #     host='localhost',
+        #     user='admin_user',
+        #     password='CS440Database',
+        #     database='CS440_DB_DESIGN',
+        # )
 
         ##Martin's connection
-        # db = Database(
-        #     host="localhost",
-        #     user="admin_user",
-        #     password="CS440Database",
-        #     database="COMP440_Fall2024_DB",
-        # )
+        db = Database(
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="COMP440_Fall2024_DB",
+        )
         db.connect()
         listings = db.obtain_listings(
             self.cityS, self.descriptionS, self.featureS, self.priceS

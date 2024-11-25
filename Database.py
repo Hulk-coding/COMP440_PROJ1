@@ -68,7 +68,7 @@ class Database:
 
                 columns = [col[0] for col in cursor.description]
                 listings = cursor.fetchall()
-                print("listing returned", listings)
+                # print('listing returned', listings)
 
                 unit_dict = {}
                 for row in listings:
@@ -109,6 +109,7 @@ class Database:
                 self.connection.commit()
 
                 print("Unit added to DB success")
+                return True
 
             except Error as e:
                 print(f"Error: {e}")
@@ -174,7 +175,7 @@ class Database:
             cursor = self.connection.cursor()
             try:
                 query = """
-                    SELECT username, review_text, rating 
+                    SELECT username, reviewText, rating 
                     FROM reviews 
                     WHERE unitID = %s
                 """
@@ -194,3 +195,107 @@ class Database:
             finally:
                 cursor.close()
         return []
+
+    def get_filtered_items(self, filter_type, params=None):
+        """
+        Retrieve filtered items based on specific filter criteria.
+        """
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                if filter_type == "most_expensive_features":
+                    query = """
+                        SELECT u.unitID, u.title, u.description, u.price, f.featureName
+                        FROM units u
+                        JOIN features f ON u.unitID = f.unitID
+                        ORDER BY u.price DESC
+                    """
+                    cursor.execute(query)
+                    columns = [col[0] for col in cursor.description]
+                    results = cursor.fetchall()
+
+                    # Process the results into a dictionary with unitID as the key and features as a list
+                    unit_dict = {}
+                    for row in results:
+                        listing = dict(zip(columns, row))
+                        unit_id = listing["unitID"]
+                        # Initialize unit if it's not already in the dictionary
+                        if unit_id not in unit_dict:
+                            unit_dict[unit_id] = {
+                                "title": listing["title"],
+                                "description": listing["description"],
+                                "price": listing["price"],
+                                "features": [],  # Start with an empty list for features
+                            }
+                        # Append the feature to the list for the given unit
+                        unit_dict[unit_id]["features"].append(listing["featureName"])
+
+                    return unit_dict
+
+                elif filter_type == "units_reviews_good_or_excellent":
+                    query = """
+                        SELECT u.unitID, u.title, u.description, u.price, f.featureName
+                        FROM units u
+                        JOIN features f ON u.unitID = f.unitID
+                        JOIN reviews r ON u.unitID = r.unitID
+                        GROUP BY u.unitID, f.featureName
+                        HAVING SUM(CASE WHEN r.rating NOT IN (3, 4) THEN 1 ELSE 0 END) = 0  -- Ensure all reviews are good (3) or excellent (4)
+                        ORDER BY u.price DESC
+                    """
+                    cursor.execute(query)
+                    columns = [col[0] for col in cursor.description]
+                    results = cursor.fetchall()
+
+                    # Process the results into a dictionary with unitID as the key and features as a list
+                    unit_dict = {}
+                    for row in results:
+                        listing = dict(zip(columns, row))
+                        unit_id = listing["unitID"]
+                        # Initialize unit if it's not already in the dictionary
+                        if unit_id not in unit_dict:
+                            unit_dict[unit_id] = {
+                                "title": listing["title"],
+                                "description": listing["description"],
+                                "price": listing["price"],
+                                "features": [],  # Start with an empty list for features
+                            }
+                        # Append the feature to the list for the given unit
+                        unit_dict[unit_id]["features"].append(listing["featureName"])
+
+                    return unit_dict
+
+                elif filter_type == "users_only_poor_reviews":
+                    query = """
+                        SELECT r.username
+                        FROM reviews r
+                        GROUP BY r.username
+                        HAVING COUNT(DISTINCT r.rating) = 1 AND MAX(r.rating) = 1
+                        ORDER BY r.username
+                    """
+                    cursor.execute(query)
+                    results = cursor.fetchall()
+                    print(f"Users with poor reviews: {results}")
+
+                    # Check if results are empty
+                    if not results:
+                        print(
+                            "No users found with poor reviews."
+                        )  # Log if no results are found
+                        return {}
+
+                    # Process the results into a dictionary with usernames
+                    user_dict = {
+                        row[0]: {} for row in results
+                    }  # row[0] is the username
+                    return user_dict
+
+                else:
+                    print(f"Invalid filter type: {filter_type}")
+                    return None
+
+            except Error as e:
+                print(f"Error in get_filtered_items: {e}")
+                return None
+
+            finally:
+                cursor.close()

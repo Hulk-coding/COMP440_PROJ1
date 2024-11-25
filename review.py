@@ -14,29 +14,30 @@ from PyQt5.QtWidgets import (
     # QMessageBox,
 )
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtCore import Qt, pyqtSignal
 from Database import Database
 
 
 class ReviewWindow(QWidget):
-    reviewCompleted = (
-        pyqtSignal()
-    )  # Signal to indicate review completion or window closure
+    reviewCompleted = pyqtSignal()
 
-    def __init__(self, username, unit_id, parent=None):
-        super().__init__(parent)
+    def __init__(self, username, unit_id):
+        super().__init__()
         self.username = username
         self.unit_id = unit_id
         self.initUI()
+        self.load_existing_reviews()
 
         # Load existing reviews after initializing UI
         self.load_existing_reviews()
 
     def initUI(self):
-        self.setWindowTitle("Rental Review")
-        self.setGeometry(100, 100, 400, 300)
 
         layout = QVBoxLayout()
+
+        self.existing_reviews = QTextEdit()
+        self.existing_reviews.setReadOnly(True)
+        layout.addWidget(QLabel("Existing Reviews:"))
+        layout.addWidget(self.existing_reviews)
 
         # Section for displaying existing reviews
         self.existing_reviews = QTextEdit()
@@ -59,7 +60,10 @@ class ReviewWindow(QWidget):
         # Submit button
         submit_button = QPushButton("Submit Review")
         submit_button.clicked.connect(self.capture_and_submit_review)
-        submit_button.clicked.connect(self.closeReview)  # Close after submission
+        layout.addWidget(submit_button)
+        # submit_button.clicked.connect(self.closeReview)
+
+        self.setLayout(layout)
 
     def capture_and_submit_review(self):
         # Capture the input values from the UI
@@ -70,21 +74,16 @@ class ReviewWindow(QWidget):
         rating_text = self.rating_combo.currentText()
         rating = rating_mapping.get(rating_text)
 
-        # db = Database(
-        #             host="localhost",
-        #             user="admin_user",
-        #             password="CS440Database",
-        #             database="CS440_DB_DESIGN",
-        #         )
+        db = Database(
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
+        )
         # db.connect()
 
         ###Martin's connection
-        db = Database(
-            host="127.0.0.1",
-            user="root",
-            password="=lrD(nC2b?87",
-            database="COMP440_Fall2024_DB",
-        )
+        # db = Database(
         #     host="localhost",
         #     user="admin_user",
         #     password="CS440Database",
@@ -99,20 +98,29 @@ class ReviewWindow(QWidget):
         self.close()
 
     def closeReview(self):
-        self.reviewCompleted.emit()  # Emit signal if needed
-        self.hide()  # Hide instead of closing a new window
+        self.reviewCompleted.emit()
+        self.hide()
 
     def closeEvent(self, event):
-        self.reviewCompleted.emit()  # Emit signal on close
-        super().closeEvent(event)  # Call parent class's closeEvent method
+        self.reviewCompleted.emit()
+        super().closeEvent(event)
 
     def load_existing_reviews(self):
+        # greg database
         db = Database(
             host="localhost",
             user="admin_user",
             password="CS440Database",
-            database="COMP440_Fall2024_DB",
+            database="CS440_DB_DESIGN",
         )
+
+        # mohomad database
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="COMP440_Fall2024_DB",
+        # )
 
         db.connect()
 

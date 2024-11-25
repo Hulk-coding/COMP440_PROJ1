@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QMessageBox,
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from Create import Create
 from Database import Database
 from Tools import Tools
@@ -18,6 +18,8 @@ from Rentals import Rentals
 
 
 class Login(QWidget):
+    login_success = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
 
@@ -148,28 +150,10 @@ class Login(QWidget):
                 self, "Login Successful", "You have successfully logged in!"
             )
             self.clear_all_fields(username, password)
-            self.showRentalsWindow(username)
+            self.login_success.emit(username)
 
         else:
             QMessageBox.warning(self, "Login Error", "Invalid username or password.")
-
-    # function created to show the rentals window
-    def showRentalsWindow(self, username):
-        self.rentalsWindow = Rentals(username)
-        self.rentalsWindow.showMaximized()
-        self.close()
-
-    def get_password(self, username, password):
-        db = Database(
-            host="127.0.0.1",
-            user="root",
-            password="=lrD(nC2b?87",
-            database="COMP440_Fall2024_DB",
-        )
-        db.connect()
-        is_password = db.check_password(username, password)
-        db.close()
-        return is_password
 
     def get_password(self, username, password):
         # db = Database(
@@ -179,20 +163,34 @@ class Login(QWidget):
         #     database="CS440_DB_DESIGN",
         # )
         # db.connect()
-
-         ###Martin's connection
+        ##Martin's connection
         db = Database(
-<<<<<<< HEAD
-            host="127.0.0.1",
-            user="root",
-            password="=lrD(nC2b?87",
-=======
             host="localhost",
             user="admin_user",
             password="CS440Database",
->>>>>>> main
             database="COMP440_Fall2024_DB",
         )
+        db.connect()
+        is_password = db.check_password(username, password)
+        db.close()
+        return is_password
+
+    def get_password(self, username, password):
+        db = Database(
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
+        )
+        # db.connect()
+
+        ##Martin's connection
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="COMP440_Fall2024_DB",
+        # )
         db.connect()
         is_password = db.check_password(username, password)
         db.close()

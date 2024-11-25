@@ -219,6 +219,39 @@ class Search(QWidget):
                 column = 0
                 row += 1
 
+    def loadUserResults(self, users):
+        # Clear current listings
+        for i in reversed(range(self.resultsLayout.count())):
+            self.resultsLayout.itemAt(i).widget().deleteLater()
+
+        if not users:
+            self.resultsLayout.addWidget(
+                QLabel("No users found with most rentals on 10/15/2024.")
+            )
+            return
+
+        row, column = 0, 0
+        for username, count in users:
+            listingWidget = QWidget()
+            listingWidget.setObjectName("grid")
+            listingLayout = QVBoxLayout()
+
+            usernameLabel = QLabel(f"Username: {username}")
+            usernameLabel.setObjectName("cells")
+            listingLayout.addWidget(usernameLabel)
+
+            countLabel = QLabel(f"Number of rentals: {count}")
+            countLabel.setObjectName("cells")
+            listingLayout.addWidget(countLabel)
+
+            listingWidget.setLayout(listingLayout)
+            self.resultsLayout.addWidget(listingWidget, row, column)
+
+            column += 1
+            if column == 3:
+                column = 0
+                row += 1
+
     def onViewReviewsButtonClicked(self, unit_id):
         # Create and show the review window directly
         self.review_window = ReviewWindow(self.username, unit_id)

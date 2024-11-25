@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QScrollArea,
     QMessageBox,
-    QComboBox
+    QComboBox,
 )
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, pyqtSignal
@@ -19,6 +19,7 @@ from review import ReviewWindow
 
 class Search(QWidget):
     view_reviews = pyqtSignal(int, str)
+
     def __init__(
         self,
         city,
@@ -33,7 +34,6 @@ class Search(QWidget):
 
         self.loadStylesheet("StyleSheet.qss")
 
-
         self.main_window = main_window
         self.added = added
         self.cityS = city
@@ -43,27 +43,28 @@ class Search(QWidget):
         self.username = username
         self.showListings()
 
-    
     def showListings(self):
         self.setWindowTitle(" Results ")
 
         mainLayout = QVBoxLayout()
-        
+
         # Add filter menu
         filterMenuLayout = QHBoxLayout()
         # filterLabel = QLabel("Filter: ")
         # filterMenuLayout.addWidget(filterLabel)
-        
+
         self.filterComboBox = QComboBox()
-        self.filterComboBox.addItems([
-            "Select a filter...",
-            "Most Expensive Features",
-            "Users with at least 2 units on the same day with Feature X and Y",
-            "Units posted by User X with all reviews as Excellent/Good",
-            "Users with the most rentals on 10/15/2024",
-            "Users with only Poor reviews",
-            "Users whose units never received Poor reviews",
-        ])
+        self.filterComboBox.addItems(
+            [
+                "Select a filter...",
+                "Most Expensive Features",
+                "Users with at least 2 units on the same day with Feature X and Y",
+                "Units posted by User X with all reviews as Excellent/Good",
+                "Users with the most rentals on 10/15/2024",
+                "Users with only Poor reviews",
+                "Users whose units never received Poor reviews",
+            ]
+        )
         self.filterComboBox.currentIndexChanged.connect(self.applyFilter)
         filterMenuLayout.addWidget(self.filterComboBox)
         mainLayout.addLayout(filterMenuLayout)
@@ -101,11 +102,11 @@ class Search(QWidget):
                 listingWidget.setObjectName("grid")
                 listingLayout = QVBoxLayout()
 
-                titleLabel = QLabel("Title: " + unit['title'])
+                titleLabel = QLabel("Title: " + unit["title"])
                 titleLabel.setObjectName("cells")
                 listingLayout.addWidget(titleLabel)
 
-                descriptionLabel = QLabel("Description: " + unit['description'])
+                descriptionLabel = QLabel("Description: " + unit["description"])
                 descriptionLabel.setObjectName("cells")
                 listingLayout.addWidget(descriptionLabel)
 
@@ -113,14 +114,16 @@ class Search(QWidget):
                 featuresLabel.setObjectName("cells")
                 listingLayout.addWidget(featuresLabel)
 
-                priceLabel = QLabel("Price: $" + str(unit['price']))
+                priceLabel = QLabel("Price: $" + str(unit["price"]))
                 priceLabel.setObjectName("cells")
                 listingLayout.addWidget(priceLabel)
 
                 buttonLayout = QHBoxLayout()
                 buttonLayout.addStretch()
                 reviewsButton = QPushButton("Reviews")
-                reviewsButton.clicked.connect(lambda _, id=unit_id: self.onViewReviewsButtonClicked(id))
+                reviewsButton.clicked.connect(
+                    lambda _, id=unit_id: self.onViewReviewsButtonClicked(id)
+                )
                 reviewsButton.setFixedSize(100, 50)
                 buttonLayout.addWidget(reviewsButton)
                 buttonLayout.addStretch()
@@ -137,8 +140,6 @@ class Search(QWidget):
             self.resultsLayout.addWidget(
                 QLabel("No results found for the selected filter.")
             )
-    
-    
 
     def applyFilter(self, index):
         if index == 0:
@@ -163,31 +164,35 @@ class Search(QWidget):
             return
 
         db = Database(
-            host='localhost',
-            user='admin_user',
-            password='CS440Database',
-            database='CS440_DB_DESIGN',
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
         )
         db.connect()
-        listings = db.get_filtered_items(self.current_filter)
-        db.close()
 
         if self.current_filter == "users_only_poor_reviews":
-        # Call a method to load users with poor reviews
+            # Call a method to load users with poor reviews
+            listings = db.get_filtered_items(self.current_filter)
             self.loadPoorReviewUsers(listings)
+        elif self.current_filter == "users_most_units_10152024":
+            # New functionality for most rentals on 10/15/2024
+            listings = db.get_users_most_rentals_on_date()
+            self.loadUserResults(listings)
         else:
-            # Call the regular method to load listings
+            # Regular listings
+            listings = db.get_filtered_items(self.current_filter)
             self.loadListings(listings)
-            
+
+        db.close()
+
     def loadPoorReviewUsers(self, users=None):
         # Clear current listings
         for i in reversed(range(self.resultsLayout.count())):
             self.resultsLayout.itemAt(i).widget().deleteLater()
 
         if not users:  # This will cover both None and empty dictionary
-            self.resultsLayout.addWidget(
-                QLabel("No users found with poor reviews.")
-            )
+            self.resultsLayout.addWidget(QLabel("No users found with poor reviews."))
             return
 
         row, column = 0, 0
@@ -214,23 +219,21 @@ class Search(QWidget):
                 column = 0
                 row += 1
 
-
-
-        
     def onViewReviewsButtonClicked(self, unit_id):
         # Create and show the review window directly
         self.review_window = ReviewWindow(self.username, unit_id)
-        self.review_window.setGeometry(0, 0, self.width(), self.height())  # Set the geometry
+        self.review_window.setGeometry(
+            0, 0, self.width(), self.height()
+        )  # Set the geometry
         self.review_window.show()  # Show the window
-
 
     def obtain_listings(self):
         # Connect to the database and retrieve listings based on criteria
         db = Database(
-            host='localhost',
-            user='admin_user',
-            password='CS440Database',
-            database='CS440_DB_DESIGN',
+            host="localhost",
+            user="admin_user",
+            password="CS440Database",
+            database="CS440_DB_DESIGN",
         )
 
         ##Martin's connection
@@ -254,10 +257,11 @@ class Search(QWidget):
 
     def returnToRentals(self):
         from Rentals import Rentals
-        self.rentalsWindow = Rentals(self.username)  
+
+        self.rentalsWindow = Rentals(self.username)
         self.rentalsWindow.showMaximized()
         self.close()
-        
+
     def loadStylesheet(self, filename):
         try:
             with open(filename, "r") as f:

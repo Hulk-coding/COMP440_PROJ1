@@ -201,7 +201,39 @@ class Database:
                 cursor.close()
         return []
     
-    
+    def get_users_two_units_same_day(self, feature_x, feature_y):
+        # 
+        # Retrieve usernames of users who posted two units with specific features on the same day.
+        
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                query = """
+                    SELECT DISTINCT u.username
+                    FROM user AS u
+                    JOIN units unit1 ON u.username = unit1.username
+                    JOIN units unit2 ON u.username = unit2.username
+                    JOIN features f1 ON unit1.unitID = f1.unitID
+                    JOIN features f2 ON unit2.unitID = f2.unitID
+                    WHERE DATE(unit1.create_at) = DATE(unit2.create_at)  -- Compare only the date part
+                    AND f1.featureName = %s  
+                    AND f2.featureName = %s 
+                    AND unit1.unitID != unit2.unitID;
+                """
+                cursor.execute(query, (feature_x, feature_y))
+                results = cursor.fetchall()
+                
+                # Return a list of usernames
+                return [row[0] for row in results]
+            
+            except mysql.connector.Error as e:
+                print(f"Error fetching users with two units same day: {e}")
+                return None
+            
+            finally:
+                cursor.close()
+
+
     def get_filtered_items(self, filter_type, params=None):
         """
         Retrieve filtered items based on specific filter criteria.
@@ -291,6 +323,12 @@ class Database:
                     user_dict = {row[0]: {} for row in results}  # row[0] is the username
                     return user_dict
 
+                #call the funtion for the two units
+                elif filter_type == "users_two_units_same_day":
+                    feature_x = None
+                    feature_y = None
+                    users = self.get_users_two_units_same_day(feature_x, feature_y)    
+                    return users
                 else:
                     print(f"Invalid filter type: {filter_type}")
                     return None

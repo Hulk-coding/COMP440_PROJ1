@@ -30,10 +30,18 @@ class MainWindow(QMainWindow):
     def createNav(self):
         toolbar = self.addToolBar("Navigation")
 
+        #search btn
         self.rentals_btn = QPushButton("Search")
         self.rentals_btn.setEnabled(False)
         self.rentals_btn.clicked.connect(self.handleLogin)
         toolbar.addWidget(self.rentals_btn)
+        
+        #logout btn
+        self.logout_btn = QPushButton("Logout")
+        self.logout_btn.setEnabled(False)  # Disabled until login
+        self.logout_btn.clicked.connect(self.handleLogout)
+        toolbar.addWidget(self.logout_btn)
+
 
 
     def switchView(self, new_widget):
@@ -44,6 +52,17 @@ class MainWindow(QMainWindow):
         self.rentals_form = Rentals(username, self) 
         self.switchView(self.rentals_form)
         self.rentals_btn.setEnabled(True)
+        self.logout_btn.setEnabled(True)
+        
+    def handleLogout(self):
+        """Handles logout and resets the application state."""
+        self.rentals_btn.setEnabled(False)  # Disable the Rentals button
+        self.logout_btn.setEnabled(False)  # Disable the Logout button
+        
+        # Recreate the login form
+        self.login_form = Login()
+        self.login_form.login_success.connect(self.handleLogin)
+        self.switchView(self.login_form)
 
 
     def handleRentalsToSearch(self, city, description, feature, price, username):

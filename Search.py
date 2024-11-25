@@ -207,33 +207,51 @@ class Search(QWidget):
         if not self.current_filter:
             return
 
-        # db = Database(
-        #     host='localhost',
-        #     user='admin_user',
-        #     password='CS440Database',
-        #     database='CS440_DB_DESIGN',
-        # )
-        # db.connect()
-        ##Martin's connection
         db = Database(
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="COMP440_Fall2024_DB",
+            host='localhost',
+            user='admin_user',
+            password='CS440Database',
+            database='CS440_DB_DESIGN',
         )
+        # db.connect()
+        # ##Martin's connection
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="COMP440_Fall2024_DB",
+        # )
         db.connect()
         listings = db.get_filtered_items(self.current_filter, params={
         'feature_x': self.featureXInput.text().strip(),
             'feature_y': self.featureYInput.text().strip()
         })
-        db.close()
+        #db.close()
 
+        # if self.current_filter == "users_only_poor_reviews":
+        #     self.loadPoorReviewUsers(listings)
+        # elif self.current_filter == "users_two_units_same_day":
+        #     self.loadUsersTwoUnits(listings)
+        # else:
+        #     self.loadListings(listings)
+        
+        
         if self.current_filter == "users_only_poor_reviews":
+            listings = db.get_filtered_items(self.current_filter)
             self.loadPoorReviewUsers(listings)
         elif self.current_filter == "users_two_units_same_day":
-            self.loadUsersTwoUnits(listings)
+             self.loadUsersTwoUnits(listings)
+        elif self.current_filter == "users_most_units_10152024":
+            results = db.get_users_most_rentals_on_date()
+            self.loadUserResults(results)
+        elif self.current_filter == "users_no_poor_reviews":
+            results = db.get_users_no_poor_reviews()
+            self.loadUsersNoPoorReviews(results)
         else:
+            listings = db.get_filtered_items(self.current_filter)
             self.loadListings(listings)
+
+        db.close()
 
         #function that loads users with two units same day
     def loadUsersTwoUnits(self, listings=None):
@@ -253,12 +271,19 @@ class Search(QWidget):
             )
             return
 
-            # Connect to the database and query the data
+            # martins Connect to the database and query the data
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="COMP440_Fall2024_DB",
+        # )
+        
         db = Database(
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="COMP440_Fall2024_DB",
+            host='localhost',
+            user='admin_user',
+            password='CS440Database',
+            database='CS440_DB_DESIGN',
         )
         db.connect()
         users = db.get_users_two_units_same_day(feature_x, feature_y)
@@ -338,20 +363,20 @@ class Search(QWidget):
 
     def obtain_listings(self):
         # Connect to the database and retrieve listings based on criteria
-        # db = Database(
-        #     host='localhost',
-        #     user='admin_user',
-        #     password='CS440Database',
-        #     database='CS440_DB_DESIGN',
-        # )
+        db = Database(
+            host='localhost',
+            user='admin_user',
+            password='CS440Database',
+            database='CS440_DB_DESIGN',
+        )
 
         ##Martin's connection
-        db = Database(
-            host="localhost",
-            user="admin_user",
-            password="CS440Database",
-            database="COMP440_Fall2024_DB",
-        )
+        # db = Database(
+        #     host="localhost",
+        #     user="admin_user",
+        #     password="CS440Database",
+        #     database="COMP440_Fall2024_DB",
+        # )
         db.connect()
         listings = db.obtain_listings(
             self.cityS, self.descriptionS, self.featureS, self.priceS
@@ -376,3 +401,69 @@ class Search(QWidget):
                 self.setStyleSheet(f.read())
         except Exception as e:
             print(f"Error loading stylesheet: {e}")
+            
+            
+            
+            
+            
+    def loadUsersNoPoorReviews(self, users):
+        # Clear current listings
+        for i in reversed(range(self.resultsLayout.count())):
+            self.resultsLayout.itemAt(i).widget().deleteLater()
+
+        if not users:
+            self.resultsLayout.addWidget(QLabel("No users found with no poor reviews."))
+            return
+
+        row, column = 0, 0
+        for username in users:
+            listingWidget = QWidget()
+            listingWidget.setObjectName("grid")
+            listingLayout = QVBoxLayout()
+
+            usernameLabel = QLabel(f"Username: {username[0]}")
+            usernameLabel.setObjectName("cells")
+            listingLayout.addWidget(usernameLabel)
+
+            listingWidget.setLayout(listingLayout)
+            self.resultsLayout.addWidget(listingWidget, row, column)
+
+            column += 1
+            if column == 3:
+                column = 0
+                row += 1
+                
+                
+                
+    def loadUserResults(self, users):
+        # Clear current listings
+        for i in reversed(range(self.resultsLayout.count())):
+            self.resultsLayout.itemAt(i).widget().deleteLater()
+
+        if not users:
+            self.resultsLayout.addWidget(
+                QLabel("No users found with most rentals on 10/15/2024.")
+            )
+            return
+
+        row, column = 0, 0
+        for username, count in users:
+            listingWidget = QWidget()
+            listingWidget.setObjectName("grid")
+            listingLayout = QVBoxLayout()
+
+            usernameLabel = QLabel(f"Username: {username}")
+            usernameLabel.setObjectName("cells")
+            listingLayout.addWidget(usernameLabel)
+
+            countLabel = QLabel(f"Number of rentals: {count}")
+            countLabel.setObjectName("cells")
+            listingLayout.addWidget(countLabel)
+
+            listingWidget.setLayout(listingLayout)
+            self.resultsLayout.addWidget(listingWidget, row, column)
+
+            column += 1
+            if column == 3:
+                column = 0
+                row += 1

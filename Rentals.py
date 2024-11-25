@@ -110,7 +110,7 @@ class Rentals(QWidget):
         inputLayout4.setAlignment(Qt.AlignCenter)
 
 
-        # greg edit - add self
+       
         buttonsLayout = QHBoxLayout()
         buttonsLayout.addWidget(self.createListingButton)
         buttonsLayout.addWidget(self.searchListingButton)
@@ -139,13 +139,6 @@ class Rentals(QWidget):
 
         self.setWindowFlags(Qt.Window)
 
-  
-    # def open_search_window(self):
-    #     self.review_window = Search(self.frameGeometry().center())
-    #     self.review_window.setFixedSize(400, 300)
-
-        
-    #     self.search_window.show()
 
     #successfully created lisitng
     def createListing(self):
@@ -171,18 +164,20 @@ class Rentals(QWidget):
         #     database="COMP440_Fall2024_DB",
         # )
         db.connect()
-        if db.insert_new_unit(city, description, price, self.username, feature):
-            QMessageBox.information(self, "SUCCESS", "Listing Created Successfully.")
-            self.added = True
+        if not city or not description or not price or not feature:
+            QMessageBox.warning(self, "Missing Fields", "Please fill in all fields.")
         else:
-            QMessageBox.information(self, "Failed", "User has reached the maximum of 2 listings for today.")    
+            # If fields are filled, attempt to insert the new unit
+            if db.insert_new_unit(city, description, price, self.username, feature):
+                QMessageBox.information(self, "SUCCESS", "Listing Created Successfully.")
+                self.added = True
+            else:
+                QMessageBox.information(self, "Failed", "User has reached the maximum of 2 listings for today.")
+    
+              
         db.close()
-
-        # self.added = True
-        
         self.clear_all_fields(city, description, feature, price)
-        # Close the window after the account creation
-        #self.close()     
+             
 
  
 

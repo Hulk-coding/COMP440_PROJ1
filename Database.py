@@ -212,13 +212,14 @@ class Database:
                     SELECT DISTINCT u.username
                     FROM user AS u
                     JOIN units unit1 ON u.username = unit1.username
-                    JOIN units unit2 ON u.username = unit2.username
                     JOIN features f1 ON unit1.unitID = f1.unitID
+                    JOIN units unit2 ON u.username = unit2.username
                     JOIN features f2 ON unit2.unitID = f2.unitID
-                    WHERE DATE(unit1.create_at) = DATE(unit2.create_at)  -- Compare only the date part
-                    AND f1.featureName = %s  
-                    AND f2.featureName = %s 
-                    AND unit1.unitID != unit2.unitID;
+                    WHERE unit1.unitID != unit2.unitID
+                    AND DATE(unit1.create_at) = DATE(unit2.create_at)
+                    AND f1.featureName = %s
+                    AND f2.featureName = %s
+                    ORDER BY u.username;
                 """
                 cursor.execute(query, (feature_x, feature_y))
                 results = cursor.fetchall()
@@ -337,5 +338,65 @@ class Database:
                 print(f"Error in get_filtered_items: {e}")
                 return None
 
+            finally:
+                cursor.close()
+
+
+    def get_users_most_rentals_on_date(self):
+            if self.connection:
+                cursor = self.connection.cursor()
+                try:
+                    query = """
+                    SELECT username, COUNT(*) AS unit_count
+                    FROM units
+                    WHERE DATE(create_at) = '2024-10-15'
+                    GROUP BY username
+                    HAVING COUNT(*) = (
+                        SELECT COUNT(*) 
+                        FROM units
+                        WHERE DATE(create_at) = '2024-10-15'
+                        GROUP BY username
+                        ORDER BY COUNT(*) DESC
+                        LIMIT 1
+                    )
+                    """
+                    cursor.execute(query)
+                    return cursor.fetchall()
+                except Error as e:
+                    print(f"Error: {e}")
+                    return None
+                finally:
+                    cursor.close()
+                    
+                    
+    def get_users_no_poor_reviews(self):
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                query = """
+                SELECT DISTINCT u.username
+                FROM units u
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM units u2
+                    WHERE u2.username = u.username
+                )
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM reviews r
+                    WHERE r.unitID IN (
+                        SELECT unitID
+                        FROM units
+                        WHERE username = u.username
+                    )
+                    AND r.rating = 1
+                )
+                ORDER BY u.username
+                """
+                cursor.execute(query)
+                return cursor.fetchall()
+            except Error as e:
+                print(f"Error: {e}")
+                return None
             finally:
                 cursor.close()

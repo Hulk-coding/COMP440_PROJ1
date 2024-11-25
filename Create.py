@@ -21,8 +21,7 @@ class Create(QWidget):
         super().__init__()
 
         form_layout = QFormLayout()
-        
-        
+
         # First name (allow only letters and spaces)
         self.firstname_inp = QLineEdit()
         firstname_regex = QRegExp(r"^[a-zA-Z\s]+$")
@@ -82,16 +81,14 @@ class Create(QWidget):
 
         self.setWindowTitle("Create New Account")
 
-
         self.tools = Tools()  # Create an instance of Tools
 
-    def center(self, parent_position = None):
+    def center(self, parent_position=None):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         cp = parent_position
         qr.moveCenter(cp)
         self.move(qr.topLeft())
-       
 
     def check_password_strength(self):
         password = self.password_inp.text()
@@ -180,7 +177,7 @@ class Create(QWidget):
         )
         # db.connect()
 
-         ###Martin's connection
+        ###Martin's connection
         # db = Database(
         #     host="localhost",
         #     user="admin_user",
@@ -188,10 +185,12 @@ class Create(QWidget):
         #     database="COMP440_Fall2024_DB",
         # )
         db.connect()
-        if db.insert_new_user(firstname, lastname, email, phone, username, hashed_password):
+        if db.insert_new_user(
+            firstname, lastname, email, phone, username, hashed_password
+        ):
             QMessageBox.information(self, "SUCCESS", "Account Created Successfully.")
         db.close()
-     
+
         self.clear_all_fields()
         # Close the window after the account creation
         self.close()

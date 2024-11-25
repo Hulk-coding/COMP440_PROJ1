@@ -1,4 +1,3 @@
-
 # import bcrypt
 from PyQt5.QtWidgets import (
     QLabel,
@@ -15,14 +14,15 @@ from Database import Database
 from Tools import Tools
 from Search import Search
 
+
 class Rentals(QWidget):
     def __init__(self, username, main_window):
         super().__init__()
         self.username = username
         self.added = False
         self.main_window = main_window
-       
-         # loading stylesheet
+
+        # loading stylesheet
         self.loadStylesheet("StyleSheet.qss")
 
         # labels for input
@@ -59,7 +59,7 @@ class Rentals(QWidget):
         self.priceIn.setFixedWidth(200)
         self.priceIn.setObjectName("userPasswordIn")
 
-        # buttons for login page 
+        # buttons for login page
         self.createListingButton = QPushButton(" Create ", self)
         self.searchListingButton = QPushButton(" Search ", self)
 
@@ -71,12 +71,11 @@ class Rentals(QWidget):
         # adding style elements
         self.createListingButton.setObjectName("loginButton")
         self.searchListingButton.setObjectName("createAccountButton")
-        
 
         # formatting page, creating layouts for the components
         pageLayout = QFormLayout()
 
-        #layout for welcome sign
+        # layout for welcome sign
         listingLayout = QFormLayout()
         listingLayout.addWidget(self.listingsPage)
         listingLayout.setAlignment(Qt.AlignCenter)
@@ -95,7 +94,7 @@ class Rentals(QWidget):
         inputLayout2.setSpacing(10)
         inputLayout2.setAlignment(Qt.AlignCenter)
 
-         # layout for feature input
+        # layout for feature input
         inputLayout3 = QHBoxLayout()
         inputLayout3.addWidget(self.feature)
         inputLayout3.addWidget(self.featureIn)
@@ -108,7 +107,6 @@ class Rentals(QWidget):
         inputLayout4.addWidget(self.priceIn)
         inputLayout4.setSpacing(10)
         inputLayout4.setAlignment(Qt.AlignCenter)
-
 
         # greg edit - add self
         buttonsLayout = QHBoxLayout()
@@ -126,34 +124,31 @@ class Rentals(QWidget):
         containerLayout.addLayout(inputLayout3)
         containerLayout.addLayout(inputLayout4)
         containerLayout.addLayout(buttonsLayout)
-        inputContainer.setFixedSize(500,300)
+        inputContainer.setFixedSize(500, 300)
         inputContainer.setLayout(containerLayout)
         inputContainer.setObjectName("inputContainer")
- 
+
         mainLayout = QVBoxLayout()
         mainLayout.addLayout(listingLayout)
-        mainLayout.addWidget(inputContainer,  alignment=Qt.AlignCenter)
-        #mainLayout.addLayout(pageLayout,  alignment=Qt.AlignCenter)
+        mainLayout.addWidget(inputContainer, alignment=Qt.AlignCenter)
+        # mainLayout.addLayout(pageLayout,  alignment=Qt.AlignCenter)
         mainLayout.setAlignment(Qt.AlignCenter)
         self.setLayout(mainLayout)
 
         self.setWindowFlags(Qt.Window)
 
-  
     # def open_search_window(self):
     #     self.review_window = Search(self.frameGeometry().center())
     #     self.review_window.setFixedSize(400, 300)
 
-        
     #     self.search_window.show()
 
-    #successfully created lisitng
+    # successfully created lisitng
     def createListing(self):
         city = self.cityIn.text()
         description = self.descriptionIn.text()
         feature = self.featureIn.text()
         price = self.priceIn.text()
-
 
         # Here we can store the user information in our database
         db = Database(
@@ -175,25 +170,29 @@ class Rentals(QWidget):
             QMessageBox.information(self, "SUCCESS", "Listing Created Successfully.")
             self.added = True
         else:
-            QMessageBox.information(self, "Failed", "User has reached the maximum of 2 listings for today.")    
+            QMessageBox.information(
+                self, "Failed", "User has reached the maximum of 2 listings for today."
+            )
         db.close()
 
         # self.added = True
-        
+
         self.clear_all_fields(city, description, feature, price)
         # Close the window after the account creation
-        #self.close()     
-
- 
+        # self.close()
 
     def showSearchWindow(self):
+        self.openSearchPage(False)  # Open Search page without the new listing flag
+
+    def openSearchPage(self, new_listing_added):
         city = self.cityIn.text()
         description = self.descriptionIn.text()
         feature = self.featureIn.text()
         price = self.priceIn.text()
 
-        self.main_window.handleRentalsToSearch(city, description, feature, price, self.username)
-
+        self.main_window.handleRentalsToSearch(
+            city, description, feature, price, self.username
+        )
 
     def loadStylesheet(self, filename):
         try:
@@ -202,6 +201,8 @@ class Rentals(QWidget):
         except Exception as e:
             print(f"Error loading stylesheet: {e}")
 
-    def clear_all_fields(self, city, description, feature, price):
-    # Clear the form fields after submission
-        Tools.clear_form_fields(self.cityIn, self.descriptionIn,  self.featureIn, self.priceIn)
+    def clear_all_fields(self):
+        # Clear the form fields after submission
+        Tools.clear_form_fields(
+            self.cityIn, self.descriptionIn, self.featureIn, self.priceIn
+        )

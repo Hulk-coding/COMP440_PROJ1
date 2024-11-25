@@ -19,11 +19,12 @@ from Rentals import Rentals
 
 class Login(QWidget):
     login_success = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
 
         # loading stylesheet
-        self.loadStylesheet("StyleSheet.qss")
+        # self.loadStylesheet("StyleSheet.qss")
 
         # labels for input
         userName = QLabel("Username")
@@ -154,8 +155,6 @@ class Login(QWidget):
         else:
             QMessageBox.warning(self, "Login Error", "Invalid username or password.")
 
-
-
     def get_password(self, username, password):
         # db = Database(
         #     host="localhost",
@@ -164,7 +163,7 @@ class Login(QWidget):
         #     database="CS440_DB_DESIGN",
         # )
         # db.connect()
-         ##Martin's connection
+        ##Martin's connection
         db = Database(
             host="localhost",
             user="admin_user",
@@ -185,7 +184,7 @@ class Login(QWidget):
         )
         # db.connect()
 
-         ##Martin's connection
+        ##Martin's connection
         # db = Database(
         #     host="localhost",
         #     user="admin_user",
@@ -204,4 +203,3 @@ class Login(QWidget):
     def clear_all_fields(self, username, password):
         # Clear the form fields after submission
         Tools.clear_form_fields(self.userNameIn, self.userPasswordIn)
-

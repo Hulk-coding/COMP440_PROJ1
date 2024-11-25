@@ -299,3 +299,29 @@ class Database:
 
             finally:
                 cursor.close()
+
+    def get_users_most_rentals_on_date(self):
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                query = """
+                SELECT username, COUNT(*) as unit_count
+                FROM units 
+                WHERE DATE(create_at) = '2024-10-15'
+                GROUP BY username
+                HAVING COUNT(*) = (
+                    SELECT COUNT(*)
+                    FROM units
+                    WHERE DATE(create_at) = '2024-10-15'
+                    GROUP BY username
+                    ORDER BY COUNT(*) DESC
+                    LIMIT 1
+                )
+                """
+                cursor.execute(query)
+                return cursor.fetchall()
+            except Error as e:
+                print(f"Error: {e}")
+                return None
+            finally:
+                cursor.close()

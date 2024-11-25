@@ -325,3 +325,35 @@ class Database:
                 return None
             finally:
                 cursor.close()
+
+    def get_users_no_poor_reviews(self):
+        if self.connection:
+            cursor = self.connection.cursor()
+            try:
+                query = """
+                SELECT DISTINCT u.username
+                FROM units u
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM units u2
+                    WHERE u2.username = u.username
+                )
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM reviews r
+                    WHERE r.unitID IN (
+                        SELECT unitID
+                        FROM units
+                        WHERE username = u.username
+                    )
+                    AND r.rating = 1
+                )
+                ORDER BY u.username
+                """
+                cursor.execute(query)
+                return cursor.fetchall()
+            except Error as e:
+                print(f"Error: {e}")
+                return None
+            finally:
+                cursor.close()

@@ -172,15 +172,15 @@ class Search(QWidget):
         db.connect()
 
         if self.current_filter == "users_only_poor_reviews":
-            # Call a method to load users with poor reviews
             listings = db.get_filtered_items(self.current_filter)
             self.loadPoorReviewUsers(listings)
         elif self.current_filter == "users_most_units_10152024":
-            # New functionality for most rentals on 10/15/2024
-            listings = db.get_users_most_rentals_on_date()
-            self.loadUserResults(listings)
+            results = db.get_users_most_rentals_on_date()
+            self.loadUserResults(results)
+        elif self.current_filter == "users_no_poor_reviews":
+            results = db.get_users_no_poor_reviews()
+            self.loadUsersNoPoorReviews(results)
         else:
-            # Regular listings
             listings = db.get_filtered_items(self.current_filter)
             self.loadListings(listings)
 
@@ -243,6 +243,33 @@ class Search(QWidget):
             countLabel = QLabel(f"Number of rentals: {count}")
             countLabel.setObjectName("cells")
             listingLayout.addWidget(countLabel)
+
+            listingWidget.setLayout(listingLayout)
+            self.resultsLayout.addWidget(listingWidget, row, column)
+
+            column += 1
+            if column == 3:
+                column = 0
+                row += 1
+
+    def loadUsersNoPoorReviews(self, users):
+        # Clear current listings
+        for i in reversed(range(self.resultsLayout.count())):
+            self.resultsLayout.itemAt(i).widget().deleteLater()
+
+        if not users:
+            self.resultsLayout.addWidget(QLabel("No users found with no poor reviews."))
+            return
+
+        row, column = 0, 0
+        for username in users:
+            listingWidget = QWidget()
+            listingWidget.setObjectName("grid")
+            listingLayout = QVBoxLayout()
+
+            usernameLabel = QLabel(f"Username: {username[0]}")
+            usernameLabel.setObjectName("cells")
+            listingLayout.addWidget(usernameLabel)
 
             listingWidget.setLayout(listingLayout)
             self.resultsLayout.addWidget(listingWidget, row, column)
